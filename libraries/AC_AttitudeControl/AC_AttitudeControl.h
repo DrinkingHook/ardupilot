@@ -475,6 +475,7 @@ protected:
 
     // Return angle in radians to be added to roll angle. Used by heli to counteract
     // tail rotor thrust in hover. Overloaded by AC_Attitude_Heli to return angle.
+    // 翻译：返回要添加到滚转角的角度（以弧度为单位）。由直升机使用，以抵消悬停时尾桨推力。由AC_Attitude_Heli重载以返回角度。
     virtual float get_roll_trim_rad() { return 0;}
 
     // Return the yaw slew rate limit in radians/s

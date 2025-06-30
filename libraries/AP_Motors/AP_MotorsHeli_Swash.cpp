@@ -117,64 +117,68 @@ void AP_MotorsHeli_Swash::calculate_roll_pitch_collective_factors()
         _pitchFactor[i] = 0.0;
         _collectiveFactor[i] = 0.0;
     }
+    _swash_type = SWASHPLATE_TYPE_H2;
+    switch (_swash_type)
+    {
+    case SWASHPLATE_TYPE_H3:
+        // Three-servo roll/pitch mixer for adjustable servo position
+        // can be any style swashplate, phase angle is adjustable
+        add_servo_angle(CH_1, _servo1_pos - _phase_angle, 1.0);
+        add_servo_angle(CH_2, _servo2_pos - _phase_angle, 1.0);
+        add_servo_angle(CH_3, _servo3_pos - _phase_angle, 1.0);
+        break;
 
-    switch (_swash_type) {
-        case SWASHPLATE_TYPE_H3:
-            // Three-servo roll/pitch mixer for adjustable servo position
-            // can be any style swashplate, phase angle is adjustable
-            add_servo_angle(CH_1, _servo1_pos - _phase_angle, 1.0);
-            add_servo_angle(CH_2, _servo2_pos - _phase_angle, 1.0);
-            add_servo_angle(CH_3, _servo3_pos - _phase_angle, 1.0);
-            break;
+    case SWASHPLATE_TYPE_H1:
+        // CCPM mixing not being used, so H1 straight outputs
+        add_servo_raw(CH_1, 1.0, 0.0, 0.0);
+        add_servo_raw(CH_2, 0.0, 1.0, 0.0);
+        add_servo_raw(CH_3, 0.0, 0.0, 1.0);
+        break;
 
-        case SWASHPLATE_TYPE_H1:
-            // CCPM mixing not being used, so H1 straight outputs
-            add_servo_raw(CH_1, 1.0, 0.0, 0.0);
-            add_servo_raw(CH_2, 0.0, 1.0, 0.0);
-            add_servo_raw(CH_3, 0.0, 0.0, 1.0);
-            break;
+    case SWASHPLATE_TYPE_H2:
+        add_servo_raw(CH_1, 0.0, 1.0, 1.0);
+        add_servo_raw(CH_2, 0.0, -1.0, 1.0);
+        break;
 
+    case SWASHPLATE_TYPE_H3_140:
+        // Three-servo roll/pitch mixer for H3-140
+        // HR3-140 uses reversed servo and collective direction in heli setup
+        // 1:1 pure input style, phase angle not adjustable
+        add_servo_raw(CH_1, 1.0, 1.0, 1.0);
+        add_servo_raw(CH_2, -1.0, 1.0, 1.0);
+        add_servo_raw(CH_3, 0.0, -1.0, 1.0);
+        break;
 
-        case SWASHPLATE_TYPE_H3_140:
-            // Three-servo roll/pitch mixer for H3-140
-            // HR3-140 uses reversed servo and collective direction in heli setup
-            // 1:1 pure input style, phase angle not adjustable
-            add_servo_raw(CH_1,  1.0,  1.0, 1.0);
-            add_servo_raw(CH_2, -1.0,  1.0, 1.0);
-            add_servo_raw(CH_3,  0.0, -1.0, 1.0);
-            break;
+    case SWASHPLATE_TYPE_H3_120:
+        // three-servo roll/pitch mixer for H3-120
+        // HR3-120 uses reversed servo and collective direction in heli setup
+        // not a pure mixing swashplate, phase angle is adjustable
+        add_servo_angle(CH_1, -60.0, 1.0);
+        add_servo_angle(CH_2, 60.0, 1.0);
+        add_servo_angle(CH_3, 180.0, 1.0);
+        break;
 
-        case SWASHPLATE_TYPE_H3_120:
-            // three-servo roll/pitch mixer for H3-120
-            // HR3-120 uses reversed servo and collective direction in heli setup
-            // not a pure mixing swashplate, phase angle is adjustable
-            add_servo_angle(CH_1, -60.0, 1.0);
-            add_servo_angle(CH_2,  60.0, 1.0);
-            add_servo_angle(CH_3, 180.0, 1.0);
-            break;
+    case SWASHPLATE_TYPE_H4_90:
+        // four-servo roll/pitch mixer for H4-90
+        // 1:1 pure input style, phase angle not adjustable
+        // servos 3 & 7 are elevator
+        // can also be used for all versions of 90 deg three-servo swashplates
+        add_servo_angle(CH_1, -90.0, 1.0);
+        add_servo_angle(CH_2, 90.0, 1.0);
+        add_servo_angle(CH_3, 180.0, 1.0);
+        add_servo_angle(CH_4, 0.0, 1.0);
+        break;
 
-        case SWASHPLATE_TYPE_H4_90:
-            // four-servo roll/pitch mixer for H4-90
-            // 1:1 pure input style, phase angle not adjustable
-            // servos 3 & 7 are elevator
-            // can also be used for all versions of 90 deg three-servo swashplates
-            add_servo_angle(CH_1, -90.0, 1.0);
-            add_servo_angle(CH_2,  90.0, 1.0);
-            add_servo_angle(CH_3, 180.0, 1.0);
-            add_servo_angle(CH_4,   0.0, 1.0);
-            break;
-
-        case SWASHPLATE_TYPE_H4_45:
-            // four-servo roll/pitch mixer for H4-45
-            // 1:1 pure input style, phase angle not adjustable
-            // for 45 deg plates servos 1&2 are LF&RF, 3&7 are LR&RR.
-            add_servo_angle(CH_1,  -45.0, 1.0);
-            add_servo_angle(CH_2,   45.0, 1.0);
-            add_servo_angle(CH_3, -135.0, 1.0);
-            add_servo_angle(CH_4,  135.0, 1.0);
-            break;
+    case SWASHPLATE_TYPE_H4_45:
+        // four-servo roll/pitch mixer for H4-45
+        // 1:1 pure input style, phase angle not adjustable
+        // for 45 deg plates servos 1&2 are LF&RF, 3&7 are LR&RR.
+        add_servo_angle(CH_1, -45.0, 1.0);
+        add_servo_angle(CH_2, 45.0, 1.0);
+        add_servo_angle(CH_3, -135.0, 1.0);
+        add_servo_angle(CH_4, 135.0, 1.0);
+        break;
     }
-
 }
 
 void AP_MotorsHeli_Swash::add_servo_angle(uint8_t num, float angle, float collective)
@@ -235,6 +239,7 @@ void AP_MotorsHeli_Swash::calculate(float roll, float pitch, float collective)
         }
 
         // rescale from -1..1, so we can use the pwm calc that includes trim
+        // 翻译：从-1..1恢复，因此我们可以使用包括装饰的PWM计算
         _output[i] = 2.0f * _output[i] - 1.0f;
 
         if (_make_servo_linear) {

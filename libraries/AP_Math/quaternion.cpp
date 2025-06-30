@@ -417,6 +417,7 @@ void QuaternionT<T>::earth_to_body(Vector3<T> &v) const
 }
 
 // create a quaternion from Euler angles
+// 从Euler角度创建四元组
 template <typename T>
 void QuaternionT<T>::from_euler(T roll, T pitch, T yaw)
 {
