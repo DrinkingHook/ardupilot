@@ -461,7 +461,7 @@ float AP_MotorsHeli_Single::get_yaw_offset(float collective)
 
     return yaw_offset;
 }
-
+// 单轴直升输出函数
 void AP_MotorsHeli_Single::output_to_motors()
 {
     if (!initialised_ok()) {

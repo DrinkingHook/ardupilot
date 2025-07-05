@@ -944,8 +944,10 @@ float Mode::get_avoidance_adjusted_climbrate(float target_rate)
 }
 
 // send output to the motors, can be overridden by subclasses
+// 翻译：将输出发送到电动机，可以被子类覆盖
 void Mode::output_to_motors()
 {
+    // 这里的motors就是连接不同机型的接口，MOTOR_CLASS *&motors中的MOTOR_CLASS包含了多种机型
     motors->output();
 }
 

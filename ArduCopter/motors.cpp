@@ -124,6 +124,8 @@ void Copter::auto_disarm_check()
 
 // motors_output - send output to motors library which will adjust and send to ESCs and servos
 // full_push is true when slower rate updates (e.g. servo output) need to be performed at the main loop rate.
+// 翻译：我们的故障安全策略是检测主循环锁定并解除电动机的武器
+// 翻译：如果full_push为真，则在主循环速率下执行较慢的更新（例如伺服输出）。如果为假，则仅在主循环速率或更快时执行电动机输出。
 void Copter::motors_output(bool full_push)
 {
 #if AP_COPTER_ADVANCED_FAILSAFE_ENABLED
@@ -140,11 +142,13 @@ void Copter::motors_output(bool full_push)
 #endif
 
     // Update arming delay state
+    // 翻译：更新武装延迟状态
     if (ap.in_arming_delay && (!motors->armed() || millis()-arm_time_ms > ARMING_DELAY_SEC*1.0e3f || flightmode->mode_number() == Mode::Number::THROW)) {
         ap.in_arming_delay = false;
     }
 
     // output any servo channels
+    // 翻译：输出任何伺服通道
     SRV_Channels::calc_pwm();
 
     auto &srv = AP::srv();
@@ -167,9 +171,11 @@ void Copter::motors_output(bool full_push)
 
     if (ap.motor_test) {
         // check if we are performing the motor test
+        // 翻译：检查我们是否正在执行电动机测试
         motor_test_output();
     } else {
         // send output signals to motors
+        // 翻译：将输出信号发送到电动机
         flightmode->output_to_motors();
     }
 
@@ -184,6 +190,7 @@ void Copter::motors_output(bool full_push)
 }
 
 // motors_output from main thread at main loop rate
+// 翻译：在主循环速率下从主线程输出电动机
 void Copter::motors_output_main()
 {
     if (!using_rate_thread) {

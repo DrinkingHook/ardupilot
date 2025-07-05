@@ -349,7 +349,7 @@ void AP_MotorsHeli_Dual::mix_intermeshing(float pitch_input, float roll_input, f
     // // Calculate servo positions in swashplate library
     // _swashplate1.calculate(swash_roll, swash1_pitch, swash1_coll);
     // _swashplate2.calculate(swash_roll, swash2_pitch, swash2_coll);
-    /* -------------------good---------------------*/
+    /* -------------------Revise---------------------*/
     // Direct roll control on both swash plates
     const float swash_roll = 0;
     // const float swash_roll2 = 0;
@@ -370,6 +370,7 @@ void AP_MotorsHeli_Dual::mix_intermeshing(float pitch_input, float roll_input, f
     // 
     _swashplate1.calculate(swash_roll, swash1_pitch, swash1_coll);
     _swashplate2.calculate(swash_roll, swash2_pitch, swash2_coll);
+    /* -------------------Revise---------------------*/
     /*————————————————————————————test——————————————————————*/
     // // Direct roll control on both swash plates
     // const float swash_roll = roll_input;
@@ -394,6 +395,7 @@ void AP_MotorsHeli_Dual::mix_intermeshing(float pitch_input, float roll_input, f
 }
 
 // update_motor_controls - sends commands to motor controllers
+// 翻译：update_motor_controls-将命令发送到电动机控制器
 void AP_MotorsHeli_Dual::update_motor_control(AP_MotorsHeli_RSC::RotorControlState state)
 {
     // Send state update to motors
@@ -543,7 +545,7 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
     }
 
 }
-
+// 双轴直升机斜盘输出函数
 void AP_MotorsHeli_Dual::output_to_motors()
 {
     if (!initialised_ok()) {

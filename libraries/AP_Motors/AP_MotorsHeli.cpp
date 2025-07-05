@@ -191,6 +191,7 @@ void AP_MotorsHeli::init(motor_frame_class frame_class, motor_frame_type frame_t
 }
 
 // output_min - sets servos to neutral point with motors stopped
+// 翻译：output_min-将伺服器设置为中性点，电动机停止
 void AP_MotorsHeli::output_min()
 {
     // move swash to mid
@@ -205,6 +206,7 @@ void AP_MotorsHeli::output_min()
 }
 
 // output - sends commands to the servos
+// 翻译：output-将命令发送到伺服器
 void AP_MotorsHeli::output()
 {
     // update throttle filter
@@ -215,6 +217,7 @@ void AP_MotorsHeli::output()
 
     if (armed()) {
         // block servo_test from happening at disarm
+        // 翻译：在解除武装时阻止servo_test发生
         _servo_test_cycle_counter = 0;
         calculate_armed_scalars();
         output_armed_stabilizing();
@@ -229,9 +232,11 @@ void AP_MotorsHeli::output()
 };
 
 // sends commands to the motors
+// 翻译：将命令发送到电动机
 void AP_MotorsHeli::output_armed_stabilizing()
 {
     // if manual override active after arming, deactivate it and reinitialize servos
+    // 翻译：如果在武装后激活手动覆盖，则停用它并重新初始化伺服器
     if (_servo_mode != SERVO_CONTROL_MODE_AUTOMATED) {
         reset_flight_controls();
     }

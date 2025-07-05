@@ -122,6 +122,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     FAST_TASK(heli_update_autorotation),
 #endif //HELI_FRAME
     // send outputs to the motors library immediately
+    // 翻译：立即将输出发送到电动机库
     FAST_TASK(motors_output_main),
      // run EKF state estimator (expensive)
     FAST_TASK(read_AHRS),
@@ -129,6 +130,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     FAST_TASK(update_heli_control_dynamics),
 #endif //HELI_FRAME
     // Inertial Nav
+    // 翻译：惯性导航
     FAST_TASK(read_inertia),
     // check if ekf has reset target heading or position
     FAST_TASK(check_ekf_reset),
@@ -902,6 +904,7 @@ void Copter::update_super_simple_bearing(bool force_update)
 void Copter::read_AHRS(void)
 {
     // we tell AHRS to skip INS update as we have already done it in FAST_TASK.
+    // 翻译：我们告诉AHRS跳过INS更新，因为我们已经在fast_task中进行了更新。
     ahrs.update(true);
 }
 

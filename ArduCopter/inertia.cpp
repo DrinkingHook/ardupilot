@@ -1,6 +1,7 @@
 #include "Copter.h"
 
 // read_inertia - read inertia in from accelerometers
+// 翻译：从加速度计读取惯性数据
 void Copter::read_inertia()
 {
     // inertial altitude estimates. Use barometer climb rate during high vibrations
