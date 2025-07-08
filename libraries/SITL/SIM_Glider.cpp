@@ -59,7 +59,7 @@ const AP_Param::GroupInfo Glider::var_info[] = {
 
     // @Param: BLN_RATE
     // @DisplayName: balloon climb rate
-    // @Description: balloon climb rate
+    // @Description: balloon climb rate. If the value is less than zero then the balloon is disabled.
     // @Units: m/s
     AP_GROUPINFO("BLN_RATE",  2, Glider, balloon_rate, 5.5),
 
@@ -292,7 +292,7 @@ void Glider::calculate_forces(const struct sitl_input &input, Vector3f &rot_acce
         // release at burst height or when balloon cut output goes high
         if (hal.scheduler->is_system_initialized() &&
             (height_AMSL > balloon_burst_amsl || balloon_cut > 0.8)) {
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "pre-release at %i m AMSL\n", (int)height_AMSL);
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "pre-release at %i m AMSL", (int)height_AMSL);
             carriage_state = carriageState::PRE_RELEASE;
         }
     } else if (carriage_state == carriageState::PRE_RELEASE) {
@@ -302,7 +302,7 @@ void Glider::calculate_forces(const struct sitl_input &input, Vector3f &rot_acce
         if (balloon_velocity.length() < 0.5) {
             carriage_state = carriageState::RELEASED;
             use_smoothing = false;
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "released at %.0f m AMSL\n", (0.01f * home.alt) - position.z);
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "released at %.0f m AMSL", (0.01f * home.alt) - position.z);
         }
     } else if (carriage_state == carriageState::WAITING_FOR_PICKUP) {
         // Don't allow the balloon to drag sideways until the pickup
@@ -396,6 +396,11 @@ bool Glider::on_ground() const
  */
 bool Glider::update_balloon(float balloon, Vector3f &force, Vector3f &rot_accel)
 {
+    // by setting a negative balloon rate we disable the balloon
+    if (balloon_rate < 0) {
+        carriage_state = carriageState::RELEASED;
+    }
+    
     if (!hal.util->get_soft_armed()) {
         return false;
     }

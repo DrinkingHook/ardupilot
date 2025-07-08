@@ -412,15 +412,24 @@ MAV_RESULT GCS_MAVLINK_Sub::handle_MAV_CMD_CONDITION_YAW(const mavlink_command_i
 
 MAV_RESULT GCS_MAVLINK_Sub::handle_MAV_CMD_DO_CHANGE_SPEED(const mavlink_command_int_t &packet)
 {
-        // param1 : unused
-        // param2 : new speed in m/s
-        // param3 : unused
-        // param4 : unused
-        if (packet.param2 > 0.0f) {
-            sub.wp_nav.set_speed_NE_cms(packet.param2 * 100.0f);
+    if (!is_positive(packet.param2)) {
+        // Target speed must be larger than zero
+        return MAV_RESULT_DENIED;
+    }
+
+    switch (SPEED_TYPE(packet.param1)) {
+        case SPEED_TYPE_CLIMB_SPEED:
+        case SPEED_TYPE_DESCENT_SPEED:
+        case SPEED_TYPE_ENUM_END:
+            break;
+
+        case SPEED_TYPE_AIRSPEED: // Airspeed is treated as ground speed for GCS compatibility
+        case SPEED_TYPE_GROUNDSPEED:
+            sub.wp_nav.set_speed_NE_cms(packet.param2 * 100.0);
             return MAV_RESULT_ACCEPTED;
-        }
-        return MAV_RESULT_FAILED;
+    }
+
+    return MAV_RESULT_DENIED;
 }
 
 MAV_RESULT GCS_MAVLINK_Sub::handle_MAV_CMD_MISSION_START(const mavlink_command_int_t &packet)
@@ -479,7 +488,7 @@ void GCS_MAVLINK_Sub::handle_message(const mavlink_message_t &msg)
         sub.failsafe.last_pilot_input_ms = AP_HAL::millis();
         // a RC override message is considered to be a 'heartbeat'
         // from the ground station for failsafe purposes
-        gcs().sysid_mygcs_seen(AP_HAL::millis());
+        sysid_mygcs_seen(AP_HAL::millis());
         break;
     }
 
@@ -590,11 +599,11 @@ void GCS_MAVLINK_Sub::handle_message(const mavlink_message_t &msg)
         bool yaw_relative = false;
         float yaw_rate_cds = 0.0f;
         if (!yaw_ignore) {
-            yaw_cd = ToDeg(packet.yaw) * 100.0f;
+            yaw_cd = degrees(packet.yaw) * 100.0f;
             yaw_relative = packet.coordinate_frame == MAV_FRAME_BODY_OFFSET_NED;
         }
         if (!yaw_rate_ignore) {
-            yaw_rate_cds = ToDeg(packet.yaw_rate) * 100.0f;
+            yaw_rate_cds = degrees(packet.yaw_rate) * 100.0f;
         }
 
         // send request

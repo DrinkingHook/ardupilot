@@ -342,7 +342,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Units: deg/s
     // @Range: 4 12
     // @User: Advanced
-    GSCALAR(poshold_brake_rate, "PHLD_BRAKE_RATE",  POSHOLD_BRAKE_RATE_DEFAULT),
+    GSCALAR(poshold_brake_rate_degs, "PHLD_BRAKE_RATE",  POSHOLD_BRAKE_RATE_DEFAULT),
 
     // @Param: PHLD_BRAKE_ANGLE
     // @DisplayName: PosHold braking angle max
@@ -364,7 +364,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Param: FS_EKF_ACTION
     // @DisplayName: EKF Failsafe Action
     // @Description: Controls the action that will be taken when an EKF failsafe is invoked
-    // @Values: 1:Land, 2:AltHold, 3:Land even in Stabilize
+    // @Values: 0:Report only, 1:Switch to Land mode if current mode requires postion, 2:Switch to AltHold mode if current mode requires postion, 3:Switch to Land mode from all modes
     // @User: Advanced
     GSCALAR(fs_ekf_action, "FS_EKF_ACTION",    FS_EKF_ACTION_DEFAULT),
 
@@ -617,11 +617,13 @@ const AP_Param::Info Copter::var_info[] = {
     // @Group: ADSB_
     // @Path: ../libraries/AP_ADSB/AP_ADSB.cpp
     GOBJECT(adsb,                "ADSB_", AP_ADSB),
+#endif  // HAL_ADSB_ENABLED
 
+#if AP_ADSB_AVOIDANCE_ENABLED
     // @Group: AVD_
     // @Path: ../libraries/AP_Avoidance/AP_Avoidance.cpp
     GOBJECT(avoidance_adsb, "AVD_", AP_Avoidance_Copter),
-#endif
+#endif  // AP_ADSB_AVOIDANCE_ENABLED
 
     // @Group: NTF_
     // @Path: ../libraries/AP_Notify/AP_Notify.cpp
@@ -864,13 +866,13 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
 
     // @Param: TUNE_MIN
     // @DisplayName: Tuning minimum
-    // @Description: Minimum value that the parameter currently being tuned with the transmitter's channel 6 knob will be set to
+    // @Description: Transmitter Tuning minum value. The parameter being tuned will have its value set to this minimum value when the tuning knob is at its lowest position
     // @User: Standard
     AP_GROUPINFO("TUNE_MIN", 31, ParametersG2, tuning_min, 0),
 
     // @Param: TUNE_MAX
     // @DisplayName: Tuning maximum
-    // @Description: Maximum value that the parameter currently being tuned with the transmitter's channel 6 knob will be set to
+    // @Description: Transmitter Tuning maximum value. The parameter being tuned will have its value set to this maximum value when the tuning knob is at its highest position
     // @User: Standard
     AP_GROUPINFO("TUNE_MAX", 32, ParametersG2, tuning_max, 0),
 
@@ -1086,7 +1088,7 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     // @Increment: 0.01
     // @Values: 0.5:Very Soft, 0.2:Soft, 0.15:Medium, 0.1:Crisp, 0.05:Very Crisp
     // @User: Standard
-    AP_SUBGROUPINFO(command_model_pilot, "PILOT_Y_", 56, ParametersG2, AC_CommandModel),
+    AP_SUBGROUPINFO(command_model_pilot_y, "PILOT_Y_", 56, ParametersG2, AC_CommandModel),
 
     // @Param: TKOFF_SLEW_TIME
     // @DisplayName: Slew time of throttle during take-off
@@ -1263,7 +1265,7 @@ ParametersG2::ParametersG2(void) :
     ,command_model_acro_y(ACRO_Y_RATE_DEFAULT, ACRO_Y_EXPO_DEFAULT, 0.0f)
 #endif
 
-    ,command_model_pilot(PILOT_Y_RATE_DEFAULT, PILOT_Y_EXPO_DEFAULT, 0.0f)
+    ,command_model_pilot_y(PILOT_Y_RATE_DEFAULT, PILOT_Y_EXPO_DEFAULT, 0.0f)
 
 #if WEATHERVANE_ENABLED
     ,weathervane()

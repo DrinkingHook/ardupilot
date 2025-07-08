@@ -489,6 +489,9 @@ class WaitAndMaintain(object):
         self.last_progress_print = 0
         self.progress_print_interval = progress_print_interval
         self.comparator = comparator
+        if self.minimum_duration is not None:
+            if self.timeout < self.minimum_duration:
+                raise ValueError("timeout less than min duration")
 
         self.fn = fn
         self.fn_interval = fn_interval
@@ -700,6 +703,17 @@ class WaitAndMaintainArmed(WaitAndMaintain):
 
     def announce_start_text(self):
         return "Ensuring vehicle remains armed"
+
+
+class WaitAndMaintainDisarmed(WaitAndMaintain):
+    def get_current_value(self):
+        return self.test_suite.armed()
+
+    def get_target_value(self):
+        return False
+
+    def announce_start_text(self):
+        return "Ensuring vehicle remains disarmed"
 
 
 class WaitAndMaintainServoChannelValue(WaitAndMaintain):
@@ -2430,6 +2444,10 @@ class TestSuite(ABC):
         if mark_context:
             self.context_get().reboot_sitl_was_done = True
 
+    def assert_armed(self):
+        if not self.armed():
+            raise NotAchievedException("Not armed")
+
     def reboot_sitl_mavproxy(self, required_bootcount=None):
         """Reboot SITL instance using MAVProxy and wait for it to reconnect."""
         old_bootcount = self.get_parameter('STAT_BOOTCNT')
@@ -3092,15 +3110,7 @@ class TestSuite(ABC):
         '''returns a set of messages which we do not want to see
         documentation for'''
 
-        # we allow for no docs for replay messages, as these are not for end-users. They are
-        # effectively binary blobs for replay
-        # Documenting these is still useful! -pb
-        REPLAY_MSGS = ['RFRH', 'RFRF', 'REV2', 'RSO2', 'RWA2', 'REV3', 'RSO3', 'RWA3', 'RMGI',
-                       'REY3', 'RISH', 'RISI', 'RISJ', 'RBRH', 'RBRI', 'RRNH', 'RRNI',
-                       'RGPH', 'RGPI', 'RGPJ', 'RASH', 'RASI', 'RBCH', 'RBCI', 'RVOH', 'RMGH',
-                       'ROFH', 'REPH', 'REVH', 'RWOH', 'RBOH', 'RSLL']
-
-        ret = set(REPLAY_MSGS)
+        ret = set()
 
         # messages not expected to be on particular vehicles.  Nothing
         # needs fixing below this point, unless you can come up with a
@@ -3111,7 +3121,8 @@ class TestSuite(ABC):
         # those messages.  We *do* care about the documented messages
         # for a vehicle as we follow the tree created by the
         # documentation (eg. @Path:
-        # ../libraries/AP_LandingGear/AP_LandingGear.cpp).
+        # ../libraries/AP_LandingGear/AP_LandingGear.cpp).  The lists
+        # here have been created to fix this discrepancy.
         vinfo_key = self.vehicleinfo_key()
         if vinfo_key != 'ArduPlane' and vinfo_key != 'ArduCopter' and vinfo_key != 'Helicopter':
             ret.update([
@@ -6302,6 +6313,18 @@ class TestSuite(ABC):
                           "WENC_TYPE"]:
             return True
         return False
+
+    def set_parameter_bit(self, name : str, bit_offset : int) -> None:
+        '''set bit in parameter to true, preserving values of other bits'''
+        value = int(self.get_parameter(name))
+        value |= 1 << bit_offset
+        self.set_parameter(name, value)
+
+    def clear_parameter_bit(self, name : str, bit_offset : int) -> None:
+        '''set bit in parameter to true, preserving values of other bits'''
+        value = int(self.get_parameter(name))
+        value &= ~(1 << bit_offset)
+        self.set_parameter(name, value)
 
     def send_set_parameter_direct(self, name, value):
         self.mav.mav.param_set_send(self.sysid_thismav(),
@@ -14939,8 +14962,12 @@ SERIAL5_BAUD 128
 
         return psd
 
-    def model_defaults_filepath(self, model):
-        vehicle = self.vehicleinfo_key()
+    def model_defaults_filepath(self, model, vehicleinfo_key=None):
+        if vehicleinfo_key is None:
+            vehicle = self.vehicleinfo_key()
+        else:
+            vehicle = vehicleinfo_key
+
         vinfo = vehicleinfo.VehicleInfo()
         defaults_filepath = vinfo.options[vehicle]["frames"][model]["default_params_filename"]
         if isinstance(defaults_filepath, str):

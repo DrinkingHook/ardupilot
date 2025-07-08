@@ -82,7 +82,7 @@ void Copter::update_land_detector()
         // check if landing
         const bool landing = flightmode->is_landing();
         SET_LOG_FLAG(landing, LandDetectorLoggingFlag::LANDING);
-        bool motor_at_lower_limit = (flightmode->has_manual_throttle() && (motors->get_below_land_min_coll() || heli_flags.coll_stk_low) && fabsf(ahrs.get_roll()) < M_PI/2.0f)
+        bool motor_at_lower_limit = (flightmode->has_manual_throttle() && (motors->get_below_land_min_coll() || heli_flags.coll_stk_low) && fabsf(ahrs.get_roll_rad()) < M_PI/2.0f)
 #if MODE_AUTOROTATE_ENABLED
                                     || (flightmode->mode_number() == Mode::Number::AUTOROTATE && motors->get_below_land_min_coll())
 #endif
@@ -111,8 +111,8 @@ void Copter::update_land_detector()
 #endif
 
         // check for aggressive flight requests - requested roll or pitch angle below 15 degrees
-        const Vector3f angle_target = attitude_control->get_att_target_euler_cd();
-        bool large_angle_request = angle_target.xy().length() > LAND_CHECK_LARGE_ANGLE_CD;
+        const Vector3f& angle_target_rad = attitude_control->get_att_target_euler_rad();
+        bool large_angle_request = angle_target_rad.xy().length() > cd_to_rad(LAND_CHECK_LARGE_ANGLE_CD);
         SET_LOG_FLAG(large_angle_request, LandDetectorLoggingFlag::LARGE_ANGLE_REQUEST);
 
         // check for large external disturbance - angle error over 30 degrees
@@ -125,7 +125,9 @@ void Copter::update_land_detector()
         SET_LOG_FLAG(accel_stationary, LandDetectorLoggingFlag::ACCEL_STATIONARY);
 
         // check that vertical speed is within 1m/s of zero
-        bool descent_rate_low = fabsf(inertial_nav.get_velocity_z_up_cms()) < 100.0 * LAND_DETECTOR_VEL_Z_MAX * land_detector_scalar;
+        float vel_d_ms = 0;
+        UNUSED_RESULT(AP::ahrs().get_velocity_D(vel_d_ms, copter.vibration_check.high_vibes));
+        const bool descent_rate_low = fabsf(vel_d_ms) < LAND_DETECTOR_VEL_Z_MAX * land_detector_scalar;
         SET_LOG_FLAG(descent_rate_low, LandDetectorLoggingFlag::DESCENT_RATE_LOW);
 
         // if we have a healthy rangefinder only allow landing detection below 2 meters
@@ -296,8 +298,8 @@ void Copter::update_throttle_mix()
         // autopilot controlled throttle
 
         // check for aggressive flight requests - requested roll or pitch angle below 15 degrees
-        const Vector3f angle_target = attitude_control->get_att_target_euler_cd();
-        bool large_angle_request = angle_target.xy().length() > LAND_CHECK_LARGE_ANGLE_CD;
+        const Vector3f& angle_target_rad = attitude_control->get_att_target_euler_rad();
+        bool large_angle_request = angle_target_rad.xy().length() > cd_to_rad(LAND_CHECK_LARGE_ANGLE_CD);
 
         // check for large external disturbance - angle error over 30 degrees
         const float angle_error = attitude_control->get_att_error_angle_deg();

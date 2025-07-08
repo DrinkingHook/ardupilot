@@ -500,7 +500,7 @@ void Plane::do_continue_and_change_alt(const AP_Mission::Mission_Command& cmd)
     } else {
         // use yaw based bearing hold
         steer_state.hold_course_cd = wrap_360_cd(ahrs.yaw_sensor);
-        bearing = ahrs.yaw_sensor * 0.01f;
+        bearing = ahrs.get_yaw_deg();
         next_WP_loc.offset_bearing(bearing, 1000); // push it out 1km
     }
 
@@ -744,8 +744,10 @@ bool Plane::verify_loiter_turns(const AP_Mission::Mission_Command &cmd)
     // LOITER_TURNS makes no sense as VTOL
     auto_state.vtol_loiter = false;
 
-    if (condition_value != 0) {
-        // primary goal, loiter time
+    if (!reached_loiter_target()) {
+        result = false;
+    } else if (condition_value != 0) {
+        // primary goal, loiter turns
         if (loiter.sum_cd > loiter.total_cd && loiter.sum_cd > 1) {
             // primary goal completed, initialize secondary heading goal
             condition_value = 0;
@@ -958,16 +960,16 @@ void Plane::do_loiter_at_location()
 bool Plane::do_change_speed(const AP_Mission::Mission_Command& cmd)
 {
     return do_change_speed(
-        (uint8_t)cmd.content.speed.speed_type,
+        (SPEED_TYPE)cmd.content.speed.speed_type,
         cmd.content.speed.target_ms,
          cmd.content.speed.throttle_pct
         );
 }
 
-bool Plane::do_change_speed(uint8_t speedtype, float speed_target_ms, float throttle_pct)
+bool Plane::do_change_speed(SPEED_TYPE speedtype, float speed_target_ms, float throttle_pct)
 {
     switch (speedtype) {
-    case 0:             // Airspeed
+    case SPEED_TYPE_AIRSPEED:
         if (is_equal(speed_target_ms, -2.0f)) {
             new_airspeed_cm = -1; // return to default airspeed
             return true;
@@ -978,10 +980,15 @@ bool Plane::do_change_speed(uint8_t speedtype, float speed_target_ms, float thro
             return true;
         }
         break;
-    case 1:             // Ground speed
+    case SPEED_TYPE_GROUNDSPEED:
         gcs().send_text(MAV_SEVERITY_INFO, "Set groundspeed %u", (unsigned)speed_target_ms);
         aparm.min_groundspeed.set(speed_target_ms);
         return true;
+
+    case SPEED_TYPE_CLIMB_SPEED:
+    case SPEED_TYPE_DESCENT_SPEED:
+    case SPEED_TYPE_ENUM_END:
+        break;
     }
 
     if (throttle_pct > 0 && throttle_pct <= 100) {
@@ -1097,7 +1104,7 @@ bool Plane::verify_landing_vtol_approach(const AP_Mission::Mission_Command &cmd)
                 const float breakout_direction_rad = radians(vtol_approach_s.approach_direction_deg + (direction > 0 ? 270 : 90));
 
                 // breakout when within 5 degrees of the opposite direction
-                if (fabsF(wrap_PI(ahrs.get_yaw() - breakout_direction_rad)) < radians(5.0f)) {
+                if (fabsF(wrap_PI(ahrs.get_yaw_rad() - breakout_direction_rad)) < radians(5.0f)) {
                     gcs().send_text(MAV_SEVERITY_INFO, "Starting VTOL land approach path");
                     vtol_approach_s.approach_stage = VTOLApproach::Stage::APPROACH_LINE;
                     set_next_WP(cmd.content.location);
