@@ -6,20 +6,24 @@
 
 /*
   update rate controller when run from main thread (normal operation)
+  翻译：在主线程中运行时更新速率控制器（正常操作）
 */
 void Copter::run_rate_controller_main()
 {
     // set attitude and position controller loop time
+    //翻译：设置姿态和位置控制器循环时间
     const float last_loop_time_s = AP::scheduler().get_last_loop_time_s();
-    pos_control->set_dt_s(last_loop_time_s);
-    attitude_control->set_dt_s(last_loop_time_s);
+    pos_control->set_dt_s(last_loop_time_s);    //位置控制器循环时间
+    attitude_control->set_dt_s(last_loop_time_s);//姿态控制器循环时间
 
     if (!using_rate_thread) {
-        motors->set_dt_s(last_loop_time_s);
+        motors->set_dt_s(last_loop_time_s); //电动机控制器循环时间
         // only run the rate controller if we are not using the rate thread
+        // 翻译：仅当我们不使用速率线程时才运行速率控制器
         attitude_control->rate_controller_run();
     }
     // reset sysid and other temporary inputs
+    // 翻译：重置sysid和其他临时输入
     attitude_control->rate_controller_target_reset();
 }
 

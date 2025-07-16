@@ -20,13 +20,13 @@
 
 #include "AP_MotorsHeli_Swash.h"
 
-extern const AP_HAL::HAL& hal;
+extern const AP_HAL::HAL &hal;
 
 const AP_Param::GroupInfo AP_MotorsHeli_Swash::var_info[] = {
 
     // @Param: TYPE
     // @DisplayName: Swashplate Type
-    // @Description: H3 is generic, three-servo only. H3_120/H3_140 plates have Motor1 left side, Motor2 right side, Motor3 elevator in rear. HR3_120/HR3_140 have Motor1 right side, Motor2 left side, Motor3 elevator in front - use H3_120/H3_140 and reverse servo and collective directions as necessary. For all H3_90 swashplates use H4_90 and don't use servo output for the missing servo. For H4-90 Motors1&2 are left/right respectively, Motors3&4 are rear/front respectively. For H4-45 Motors1&2 are LF/RF, Motors3&4 are LR/RR 
+    // @Description: H3 is generic, three-servo only. H3_120/H3_140 plates have Motor1 left side, Motor2 right side, Motor3 elevator in rear. HR3_120/HR3_140 have Motor1 right side, Motor2 left side, Motor3 elevator in front - use H3_120/H3_140 and reverse servo and collective directions as necessary. For all H3_90 swashplates use H4_90 and don't use servo output for the missing servo. For H4-90 Motors1&2 are left/right respectively, Motors3&4 are rear/front respectively. For H4-45 Motors1&2 are LF/RF, Motors3&4 are LR/RR
     // @Values: 0:H3 Generic,1:H1 non-CPPM,2:H3_140,3:H3_120,4:H4_90,5:H4_45
     // @User: Standard
     AP_GROUPINFO("TYPE", 1, AP_MotorsHeli_Swash, _swashplate_type, SWASHPLATE_TYPE_H3_120),
@@ -75,7 +75,7 @@ const AP_Param::GroupInfo AP_MotorsHeli_Swash::var_info[] = {
     // @Units: deg
     // @User: Advanced
     AP_GROUPINFO("H3_SV3_POS", 7, AP_MotorsHeli_Swash, _servo3_pos, 180),
-    
+
     // @Param: H3_PHANG
     // @DisplayName: Swashplate Phase Angle Compensation
     // @Description: Only for H3 swashplate.  If pitching the swash forward induces a roll, this can be correct the problem
@@ -84,13 +84,11 @@ const AP_Param::GroupInfo AP_MotorsHeli_Swash::var_info[] = {
     // @User: Advanced
     // @Increment: 1
     AP_GROUPINFO("H3_PHANG", 8, AP_MotorsHeli_Swash, _phase_angle, 0),
-   
-    AP_GROUPEND
-};
 
-AP_MotorsHeli_Swash::AP_MotorsHeli_Swash(uint8_t mot_0, uint8_t mot_1, uint8_t mot_2, uint8_t mot_3, uint8_t instance) :
-    _motor_num{mot_0, mot_1, mot_2, mot_3},
-    _instance(instance)
+    AP_GROUPEND};
+
+AP_MotorsHeli_Swash::AP_MotorsHeli_Swash(uint8_t mot_0, uint8_t mot_1, uint8_t mot_2, uint8_t mot_3, uint8_t instance) : _motor_num{mot_0, mot_1, mot_2, mot_3},
+                                                                                                                         _instance(instance)
 {
     AP_Param::setup_object_defaults(this, var_info);
 }
@@ -111,74 +109,75 @@ void AP_MotorsHeli_Swash::configure()
 void AP_MotorsHeli_Swash::calculate_roll_pitch_collective_factors()
 {
     // Clear existing setup
-    for (uint8_t i = 0; i < _max_num_servos; i++) {
+    for (uint8_t i = 0; i < _max_num_servos; i++)
+    {
         _enabled[i] = false;
         _rollFactor[i] = 0.0;
         _pitchFactor[i] = 0.0;
         _collectiveFactor[i] = 0.0;
     }
-    _swash_type = SWASHPLATE_TYPE_H2;
-    switch (_swash_type)
-    {
-    case SWASHPLATE_TYPE_H3:
-        // Three-servo roll/pitch mixer for adjustable servo position
-        // can be any style swashplate, phase angle is adjustable
-        add_servo_angle(CH_1, _servo1_pos - _phase_angle, 1.0);
-        add_servo_angle(CH_2, _servo2_pos - _phase_angle, 1.0);
-        add_servo_angle(CH_3, _servo3_pos - _phase_angle, 1.0);
-        break;
+    // _swash_type = SWASHPLATE_TYPE_H2;
+    // switch (_swash_type)
+    // {
+    // case SWASHPLATE_TYPE_H3:
+    //     // Three-servo roll/pitch mixer for adjustable servo position
+    //     // can be any style swashplate, phase angle is adjustable
+    //     add_servo_angle(CH_1, _servo1_pos - _phase_angle, 1.0);
+    //     add_servo_angle(CH_2, _servo2_pos - _phase_angle, 1.0);
+    //     add_servo_angle(CH_3, _servo3_pos - _phase_angle, 1.0);
+    //     break;
 
-    case SWASHPLATE_TYPE_H1:
-        // CCPM mixing not being used, so H1 straight outputs
-        add_servo_raw(CH_1, 1.0, 0.0, 0.0);
-        add_servo_raw(CH_2, 0.0, 1.0, 0.0);
-        add_servo_raw(CH_3, 0.0, 0.0, 1.0);
-        break;
+    // case SWASHPLATE_TYPE_H1:
+    //     // CCPM mixing not being used, so H1 straight outputs
+    //     add_servo_raw(CH_1, 1.0, 0.0, 0.0);
+    //     add_servo_raw(CH_2, 0.0, 1.0, 0.0);
+    //     add_servo_raw(CH_3, 0.0, 0.0, 1.0);
+    //     break;
 
-    case SWASHPLATE_TYPE_H2:
-        add_servo_raw(CH_1, 0.0, 1.0, 1.0);
-        add_servo_raw(CH_2, 0.0, -1.0, 1.0);
-        break;
+    // case SWASHPLATE_TYPE_H2:
+        add_servo_raw(CH_1, 0, 1.0, 1.0);
+        add_servo_raw(CH_2, 0, -1.0, 1.0);
+    //     break;
 
-    case SWASHPLATE_TYPE_H3_140:
-        // Three-servo roll/pitch mixer for H3-140
-        // HR3-140 uses reversed servo and collective direction in heli setup
-        // 1:1 pure input style, phase angle not adjustable
-        add_servo_raw(CH_1, 1.0, 1.0, 1.0);
-        add_servo_raw(CH_2, -1.0, 1.0, 1.0);
-        add_servo_raw(CH_3, 0.0, -1.0, 1.0);
-        break;
+    // case SWASHPLATE_TYPE_H3_140:
+    //     // Three-servo roll/pitch mixer for H3-140
+    //     // HR3-140 uses reversed servo and collective direction in heli setup
+    //     // 1:1 pure input style, phase angle not adjustable
+    //     add_servo_raw(CH_1, 1.0, 1.0, 1.0);
+    //     add_servo_raw(CH_2, -1.0, 1.0, 1.0);
+    //     add_servo_raw(CH_3, 0.0, -1.0, 1.0);
+    //     break;
 
-    case SWASHPLATE_TYPE_H3_120:
-        // three-servo roll/pitch mixer for H3-120
-        // HR3-120 uses reversed servo and collective direction in heli setup
-        // not a pure mixing swashplate, phase angle is adjustable
-        add_servo_angle(CH_1, -60.0, 1.0);
-        add_servo_angle(CH_2, 60.0, 1.0);
-        add_servo_angle(CH_3, 180.0, 1.0);
-        break;
+    // case SWASHPLATE_TYPE_H3_120:
+    //     // three-servo roll/pitch mixer for H3-120
+    //     // HR3-120 uses reversed servo and collective direction in heli setup
+    //     // not a pure mixing swashplate, phase angle is adjustable
+    //     add_servo_angle(CH_1, -60.0, 1.0);
+    //     add_servo_angle(CH_2, 60.0, 1.0);
+    //     add_servo_angle(CH_3, 180.0, 1.0);
+    //     break;
 
-    case SWASHPLATE_TYPE_H4_90:
-        // four-servo roll/pitch mixer for H4-90
-        // 1:1 pure input style, phase angle not adjustable
-        // servos 3 & 7 are elevator
-        // can also be used for all versions of 90 deg three-servo swashplates
-        add_servo_angle(CH_1, -90.0, 1.0);
-        add_servo_angle(CH_2, 90.0, 1.0);
-        add_servo_angle(CH_3, 180.0, 1.0);
-        add_servo_angle(CH_4, 0.0, 1.0);
-        break;
+    // case SWASHPLATE_TYPE_H4_90:
+    //     // four-servo roll/pitch mixer for H4-90
+    //     // 1:1 pure input style, phase angle not adjustable
+    //     // servos 3 & 7 are elevator
+    //     // can also be used for all versions of 90 deg three-servo swashplates
+    //     add_servo_angle(CH_1, -90.0, 1.0);
+    //     add_servo_angle(CH_2, 90.0, 1.0);
+    //     add_servo_angle(CH_3, 180.0, 1.0);
+    //     add_servo_angle(CH_4, 0.0, 1.0);
+    //     break;
 
-    case SWASHPLATE_TYPE_H4_45:
-        // four-servo roll/pitch mixer for H4-45
-        // 1:1 pure input style, phase angle not adjustable
-        // for 45 deg plates servos 1&2 are LF&RF, 3&7 are LR&RR.
-        add_servo_angle(CH_1, -45.0, 1.0);
-        add_servo_angle(CH_2, 45.0, 1.0);
-        add_servo_angle(CH_3, -135.0, 1.0);
-        add_servo_angle(CH_4, 135.0, 1.0);
-        break;
-    }
+    // case SWASHPLATE_TYPE_H4_45:
+    //     // four-servo roll/pitch mixer for H4-45
+    //     // 1:1 pure input style, phase angle not adjustable
+    //     // for 45 deg plates servos 1&2 are LF&RF, 3&7 are LR&RR.
+    //     add_servo_angle(CH_1, -45.0, 1.0);
+    //     add_servo_angle(CH_2, 45.0, 1.0);
+    //     add_servo_angle(CH_3, -135.0, 1.0);
+    //     add_servo_angle(CH_4, 135.0, 1.0);
+    //     break;
+    // }
 }
 
 void AP_MotorsHeli_Swash::add_servo_angle(uint8_t num, float angle, float collective)
@@ -191,7 +190,8 @@ void AP_MotorsHeli_Swash::add_servo_angle(uint8_t num, float angle, float collec
 
 void AP_MotorsHeli_Swash::add_servo_raw(uint8_t num, float roll, float pitch, float collective)
 {
-    if (num >= _max_num_servos) {
+    if (num >= _max_num_servos)
+    {
         // Indexing problem should never happen
         return;
     }
@@ -210,7 +210,6 @@ void AP_MotorsHeli_Swash::add_servo_raw(uint8_t num, float roll, float pitch, fl
 
     // swash servos always use full endpoints as restricting them would lead to scaling errors
     SRV_Channels::set_output_min_max(function, 1000, 2000);
-
 }
 
 // calculates servo output
@@ -223,18 +222,22 @@ void AP_MotorsHeli_Swash::calculate(float roll, float pitch, float collective)
     _collective_input_scaled = collective;
 
     // Collective control direction. Swash moves up for negative collective pitch, down for positive collective pitch
-    if (_collective_direction == COLLECTIVE_DIRECTION_REVERSED) {
+    if (_collective_direction == COLLECTIVE_DIRECTION_REVERSED)
+    {
         collective = 1 - collective;
     }
 
-    for (uint8_t i = 0; i < _max_num_servos; i++) {
-        if (!_enabled[i]) {
+    for (uint8_t i = 0; i < _max_num_servos; i++)
+    {
+        if (!_enabled[i])
+        {
             // This servo is not enabled
             continue;
         }
 
         _output[i] = (_rollFactor[i] * roll) + (_pitchFactor[i] * pitch) + _collectiveFactor[i] * collective;
-        if (_swash_type == SWASHPLATE_TYPE_H1 && (i == CH_1 || i == CH_2)) {
+        if (_swash_type == SWASHPLATE_TYPE_H1 && (i == CH_1 || i == CH_2))
+        {
             _output[i] += 0.5f;
         }
 
@@ -242,10 +245,10 @@ void AP_MotorsHeli_Swash::calculate(float roll, float pitch, float collective)
         // 翻译：从-1..1恢复，因此我们可以使用包括装饰的PWM计算
         _output[i] = 2.0f * _output[i] - 1.0f;
 
-        if (_make_servo_linear) {
+        if (_make_servo_linear)
+        {
             _output[i] = get_linear_servo_output(_output[i]);
         }
-
     }
 }
 
@@ -255,16 +258,17 @@ float AP_MotorsHeli_Swash::get_linear_servo_output(float input) const
 
     input = constrain_float(input, -1.0f, 1.0f);
 
-    //servo output is calculated by normalizing input to 50 deg arm rotation as full input for a linear throw
+    // servo output is calculated by normalizing input to 50 deg arm rotation as full input for a linear throw
     return safe_asin(0.766044f * input) * 1.145916;
-
 }
 
 // Output calculated values to servos
 void AP_MotorsHeli_Swash::output()
 {
-    for (uint8_t i = 0; i < _max_num_servos; i++) {
-        if (_enabled[i]) {
+    for (uint8_t i = 0; i < _max_num_servos; i++)
+    {
+        if (_enabled[i])
+        {
             rc_write(_motor_num[i], _output[i]);
         }
     }
@@ -285,8 +289,10 @@ void AP_MotorsHeli_Swash::rc_write(uint8_t chan, float swash_in)
 uint32_t AP_MotorsHeli_Swash::get_output_mask() const
 {
     uint32_t mask = 0;
-    for (uint8_t i = 0; i < _max_num_servos; i++) {
-        if (_enabled[i]) {
+    for (uint8_t i = 0; i < _max_num_servos; i++)
+    {
+        if (_enabled[i])
+        {
             mask |= 1U < _motor_num[i];
         }
     }
@@ -299,9 +305,9 @@ void AP_MotorsHeli_Swash::write_log(float cyclic_scaler, float col_ang_min, floa
 {
     // Calculate the collective contribution to blade pitch angle
     // Swashplate receives the scaled collective value based on the col_min and col_max params. We have to reverse the scaling here to do the angle calculation.
-    float collective_scalar = ((float)(col_max-col_min))*1e-3;
+    float collective_scalar = ((float)(col_max - col_min)) * 1e-3;
     collective_scalar = MAX(collective_scalar, 1e-3);
-    float _collective_input = (_collective_input_scaled - (float)(col_min - 1000)*1e-3) / collective_scalar;
+    float _collective_input = (_collective_input_scaled - (float)(col_min - 1000) * 1e-3) / collective_scalar;
     float col = (col_ang_max - col_ang_min) * _collective_input + col_ang_min;
 
     // Calculate the cyclic contribution to blade pitch angle

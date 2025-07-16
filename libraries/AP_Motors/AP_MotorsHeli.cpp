@@ -232,7 +232,7 @@ void AP_MotorsHeli::output()
 };
 
 // sends commands to the motors
-// 翻译：将命令发送到电动机
+// 翻译：将命令发送到电动机 -实际运行时的舵机输出
 void AP_MotorsHeli::output_armed_stabilizing()
 {
     // if manual override active after arming, deactivate it and reinitialize servos
@@ -245,6 +245,7 @@ void AP_MotorsHeli::output_armed_stabilizing()
 }
 
 // output_disarmed - sends commands to the motors
+// 未解锁时伺服舵机输出
 void AP_MotorsHeli::output_disarmed()
 {
     if (_servo_test_cycle_counter > 0){

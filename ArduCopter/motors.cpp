@@ -87,9 +87,11 @@ void Copter::motors_output(bool full_push)
     auto &srv = AP::srv();
 
     // cork now, so that all channel outputs happen at once
+    // 翻译：现在塞住，这样所有通道输出就会同时发生
     srv.cork();
 
     // update output on any aux channels, for manual passthru
+    // 翻译：更新任何辅助通道的输出，以进行手动直通
     SRV_Channels::output_ch_all();
 
     // update motors interlock state
@@ -113,11 +115,14 @@ void Copter::motors_output(bool full_push)
     }
 
     // push all channels
+    // 翻译：推送所有通道
     if (full_push) {
         // motor output including servos and other updates that need to run at the main loop rate
+        // 翻译：包括需要在主循环速率下运行的伺服和其他更新的电动机输出
         srv.push();
     } else {
         // motor output only at main loop rate or faster
+        // 翻译：仅在主循环速率或更快的电动机输出
         hal.rcout->push();
     }
 }
@@ -132,6 +137,7 @@ void Copter::motors_output_main()
 }
 
 // check for pilot stick input to trigger lost vehicle alarm
+// 翻译：检查飞行员杆输入以触发丢失的车辆警报
 void Copter::lost_vehicle_check()
 {
     static uint8_t soundalarm_counter;

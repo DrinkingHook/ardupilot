@@ -187,6 +187,7 @@ void Copter::heli_update_rotor_speed_targets()
 
 // heli_update_autorotation - determines if aircraft is in autorotation and sets motors flag and switches
 // to autorotation flight mode if manual collective is not being used.
+// 翻译：heli_update_autorotation - 确定飞行器是否处于自动旋转状态，并设置电动机标志和开关
 void Copter::heli_update_autorotation()
 {
     bool in_autorotation_mode = false;

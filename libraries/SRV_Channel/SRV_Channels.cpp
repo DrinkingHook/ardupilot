@@ -482,6 +482,7 @@ void SRV_Channels::cork()
 
 /*
   wrapper around hal.rcout->push()
+  翻译：将输出推送到RC输出
  */
 void SRV_Channels::push()
 {

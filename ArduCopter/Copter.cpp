@@ -133,6 +133,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     // 翻译：惯性导航
     FAST_TASK(read_inertia),
     // check if ekf has reset target heading or position
+    // 翻译：检查ekf是否重置目标航向或位置
     FAST_TASK(check_ekf_reset),
     // run the attitude controllers
     FAST_TASK(update_flight_mode),

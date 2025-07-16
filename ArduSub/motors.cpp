@@ -7,13 +7,16 @@ void Sub::enable_motor_output()
 }
 
 // motors_output - send output to motors library which will adjust and send to ESCs and servos
+// 翻译：MOTORS_OUTPUT-将输出发送到电动机库，该库将调整并发送到ESC和Servos
 void Sub::motors_output()
 {
     // Motor detection mode controls the thrusters directly
+    // 翻译：电动机检测模式直接控制推进器
     if (control_mode == Mode::Number::MOTOR_DETECT){
         return;
     }
     // check if we are performing the motor test
+    // 翻译：检查我们是否正在执行电动机测试
     if (ap.motor_test) {
         verify_motor_test();
     } else {
