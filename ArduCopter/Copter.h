@@ -712,6 +712,7 @@ private:
     // returns true if the EKF failsafe has triggered
     bool has_ekf_failsafed() const override;
 #endif // AP_SCRIPTING_ENABLED
+    void uart_sensor_loop(); 
     bool is_landing() const override;
     bool is_taking_off() const override;
     void rc_loop();

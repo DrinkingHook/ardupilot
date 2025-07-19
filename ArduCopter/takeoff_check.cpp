@@ -15,6 +15,7 @@ void Copter::takeoff_check()
     }
 
     // block takeoff when disarmed but do not display warnings
+    // 翻译：在解除武装时阻止起飞，但不显示警告
     if (!motors->armed()) {
         motors->set_spoolup_block(true);
         takeoff_check_warning_ms = 0;
@@ -39,6 +40,7 @@ void Copter::takeoff_check()
     }
 
     // warn user telem inactive or rpm is inadequate every 5 seconds
+    // 翻译：每5秒警告用户telem不活动或rpm不充分
     uint32_t now_ms = AP_HAL::millis();
     if (takeoff_check_warning_ms == 0) {
         takeoff_check_warning_ms = now_ms;

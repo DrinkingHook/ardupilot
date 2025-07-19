@@ -88,18 +88,27 @@ const AP_HAL::HAL& hal = AP_HAL::get_HAL();
 
 /*
   scheduler table - all tasks should be listed here.
+  // 调度程序表 - 所有任务都应在此处列出。
 
   All entries in this table must be ordered by priority.
+  // 翻译：此表中的所有条目必须按优先级排序。
 
   This table is interleaved with the table in AP_Vehicle to determine
   the order in which tasks are run.  Convenience methods SCHED_TASK
   and SCHED_TASK_CLASS are provided to build entries in this structure:
+  // 翻译：该表与AP_Vehicle中的表交织在一起，以确定运行任务的顺序。  便利方法sched_task和sched_task_class提供在此结构中构建条目：
 
 SCHED_TASK arguments:
  - name of static function to call
  - rate (in Hertz) at which the function should be called
  - expected time (in MicroSeconds) that the function should take to run
  - priority (0 through 255, lower number meaning higher priority)
+翻译：
+Sched_task参数：
+  - 静态功能的名称要呼叫
+  - 应调用该功能的费率（在赫兹（Hertz））
+  - 预期时间（在微秒中）应运行该功能
+  - 优先级（0到255，数字较低，表示优先级更高）
 
 SCHED_TASK_CLASS arguments:
  - class name of method to be called
@@ -108,12 +117,22 @@ SCHED_TASK_CLASS arguments:
  - rate (in Hertz) at which the method should be called
  - expected time (in MicroSeconds) that the method should take to run
  - priority (0 through 255, lower number meaning higher priority)
+ 翻译：
+ Sched_task_class参数：
+  - 被称为方法的类名称
+  - 可以调用该方法的实例
+  - 致电该实例的方法
+  - 应调用该方法的费率（在赫兹）
+  - 预期时间（以微秒为单位）该方法应运行
+  - 优先级（0到255，数字较低，表示优先级更高）
 
  */
 const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     // update INS immediately to get current gyro data populated
+    // 翻译：立即更新INS以获取当前陀螺仪数据
     FAST_TASK_CLASS(AP_InertialSensor, &copter.ins, update),
     // run low level rate controllers that only require IMU data
+    // 翻译：运行只需要IMU数据的低级速率控制器
     FAST_TASK(run_rate_controller_main),
 #if AC_CUSTOMCONTROL_MULTI_ENABLED
     FAST_TASK(run_custom_controller),
@@ -124,7 +143,8 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     // send outputs to the motors library immediately
     // 翻译：立即将输出发送到电动机库
     FAST_TASK(motors_output_main),
-     // run EKF state estimator (expensive)
+    // run EKF state estimator (expensive)
+    // 翻译：运行EKF状态估计器（昂贵）
     FAST_TASK(read_AHRS),
 #if FRAME_CONFIG == HELI_FRAME
     FAST_TASK(update_heli_control_dynamics),
@@ -136,12 +156,16 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     // 翻译：检查ekf是否重置目标航向或位置
     FAST_TASK(check_ekf_reset),
     // run the attitude controllers
+    // 翻译：运行姿态控制器
     FAST_TASK(update_flight_mode),
     // update home from EKF if necessary
+    // 翻译：从EKF更新家园（如果需要）
     FAST_TASK(update_home_from_EKF),
     // check if we've landed or crashed
+    // 翻译：检查我们是否已经着陆或坠毁
     FAST_TASK(update_land_and_crash_detectors),
     // surface tracking update
+    // 翻译：表面跟踪更新
     FAST_TASK(update_rangefinder_terrain_offset),
 #if HAL_MOUNT_ENABLED
     // camera mount's fast update
@@ -151,122 +175,122 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     FAST_TASK(Log_Video_Stabilisation),
 #endif
 
-    SCHED_TASK(rc_loop,              250,    130,  3),
-    SCHED_TASK(throttle_loop,         50,     75,  6),
+    SCHED_TASK(rc_loop, 250, 130, 3),
+    SCHED_TASK(throttle_loop, 50, 75, 6),
 #if AP_FENCE_ENABLED
-    SCHED_TASK(fence_check,           25,    100,  7),
+    SCHED_TASK(fence_check, 25, 100, 7),
 #endif
-    SCHED_TASK_CLASS(AP_GPS,               &copter.gps,                 update,          50, 200,   9),
+    SCHED_TASK_CLASS(AP_GPS, &copter.gps, update, 50, 200, 9),
 #if AP_OPTICALFLOW_ENABLED
-    SCHED_TASK_CLASS(AP_OpticalFlow,          &copter.optflow,             update,         200, 160,  12),
+    SCHED_TASK_CLASS(AP_OpticalFlow, &copter.optflow, update, 200, 160, 12),
 #endif
-    SCHED_TASK(update_batt_compass,   10,    120, 15),
-    SCHED_TASK_CLASS(RC_Channels, (RC_Channels*)&copter.g2.rc_channels, read_aux_all,    10,  50,  18),
+    SCHED_TASK(update_batt_compass, 10, 120, 15),
+    SCHED_TASK_CLASS(RC_Channels, (RC_Channels *)&copter.g2.rc_channels, read_aux_all, 10, 50, 18),
 #if TOY_MODE_ENABLED
-    SCHED_TASK_CLASS(ToyMode,              &copter.g2.toy_mode,         update,          10,  50,  24),
+    SCHED_TASK_CLASS(ToyMode, &copter.g2.toy_mode, update, 10, 50, 24),
 #endif
-    SCHED_TASK(auto_disarm_check,     10,     50,  27),
+    SCHED_TASK(auto_disarm_check, 10, 50, 27),
 #if AP_COPTER_AHRS_AUTO_TRIM_ENABLED
-    SCHED_TASK_CLASS(RC_Channels_Copter,   &copter.g2.rc_channels,      auto_trim_run,   10,  75,  30),
+    SCHED_TASK_CLASS(RC_Channels_Copter, &copter.g2.rc_channels, auto_trim_run, 10, 75, 30),
 #endif
 #if AP_RANGEFINDER_ENABLED
-    SCHED_TASK(read_rangefinder,      20,    100,  33),
+    SCHED_TASK(read_rangefinder, 20, 100, 33),
 #endif
 #if HAL_PROXIMITY_ENABLED
-    SCHED_TASK_CLASS(AP_Proximity,         &copter.g2.proximity,        update,         200,  50,  36),
+    SCHED_TASK_CLASS(AP_Proximity, &copter.g2.proximity, update, 200, 50, 36),
 #endif
 #if AP_BEACON_ENABLED
-    SCHED_TASK_CLASS(AP_Beacon,            &copter.g2.beacon,           update,         400,  50,  39),
+    SCHED_TASK_CLASS(AP_Beacon, &copter.g2.beacon, update, 400, 50, 39),
 #endif
-    SCHED_TASK(update_altitude,       10,    100,  42),
-    SCHED_TASK(run_nav_updates,       50,    100,  45),
-    SCHED_TASK(update_throttle_hover,100,     90,  48),
+    SCHED_TASK(update_altitude, 10, 100, 42),
+    SCHED_TASK(run_nav_updates, 50, 100, 45),
+    SCHED_TASK(update_throttle_hover, 100, 90, 48),
 #if MODE_SMARTRTL_ENABLED
-    SCHED_TASK_CLASS(ModeSmartRTL,         &copter.mode_smartrtl,       save_position,    3, 100,  51),
+    SCHED_TASK_CLASS(ModeSmartRTL, &copter.mode_smartrtl, save_position, 3, 100, 51),
 #endif
 #if HAL_SPRAYER_ENABLED
-    SCHED_TASK_CLASS(AC_Sprayer,           &copter.sprayer,               update,         3,  90,  54),
+    SCHED_TASK_CLASS(AC_Sprayer, &copter.sprayer, update, 3, 90, 54),
 #endif
-    SCHED_TASK(three_hz_loop,          3,     75, 57),
+    SCHED_TASK(three_hz_loop, 3, 75, 57),
 #if AP_SERVORELAYEVENTS_ENABLED
-    SCHED_TASK_CLASS(AP_ServoRelayEvents,  &copter.ServoRelayEvents,      update_events, 50,  75,  60),
+    SCHED_TASK_CLASS(AP_ServoRelayEvents, &copter.ServoRelayEvents, update_events, 50, 75, 60),
 #endif
 #if AC_PRECLAND_ENABLED
-    SCHED_TASK(update_precland,      400,     50,  69),
+    SCHED_TASK(update_precland, 400, 50, 69),
 #endif
 #if FRAME_CONFIG == HELI_FRAME
-    SCHED_TASK(check_dynamic_flight,  50,     75,  72),
+    SCHED_TASK(check_dynamic_flight, 50, 75, 72),
 #endif
 #if HAL_LOGGING_ENABLED
-    SCHED_TASK(loop_rate_logging, LOOP_RATE,    50,  75),
+    SCHED_TASK(loop_rate_logging, LOOP_RATE, 50, 75),
 #endif
-    SCHED_TASK(one_hz_loop,            1,    100,  81),
-    SCHED_TASK(ekf_check,             10,     75,  84),
-    SCHED_TASK(check_vibration,       10,     50,  87),
-    SCHED_TASK(gpsglitch_check,       10,     50,  90),
-    SCHED_TASK(takeoff_check,         50,     50,  91),
+    SCHED_TASK(one_hz_loop, 1, 100, 81),
+    SCHED_TASK(ekf_check, 10, 75, 84),
+    SCHED_TASK(check_vibration, 10, 50, 87),
+    SCHED_TASK(gpsglitch_check, 10, 50, 90),
+    SCHED_TASK(takeoff_check, 50, 50, 91),
 #if AP_LANDINGGEAR_ENABLED
-    SCHED_TASK(landinggear_update,    10,     75,  93),
+    SCHED_TASK(landinggear_update, 10, 75, 93),
 #endif
-    SCHED_TASK(standby_update,        100,    75,  96),
-    SCHED_TASK(lost_vehicle_check,    10,     50,  99),
-    SCHED_TASK_CLASS(GCS,                  (GCS*)&copter._gcs,          update_receive, 400, 180, 102),
-    SCHED_TASK_CLASS(GCS,                  (GCS*)&copter._gcs,          update_send,    400, 550, 105),
+    SCHED_TASK(standby_update, 100, 75, 96),
+    SCHED_TASK(lost_vehicle_check, 10, 50, 99),
+    SCHED_TASK_CLASS(GCS, (GCS *)&copter._gcs, update_receive, 400, 180, 102),
+    SCHED_TASK_CLASS(GCS, (GCS *)&copter._gcs, update_send, 400, 550, 105),
 #if HAL_MOUNT_ENABLED
-    SCHED_TASK_CLASS(AP_Mount,             &copter.camera_mount,        update,          50,  75, 108),
+    SCHED_TASK_CLASS(AP_Mount, &copter.camera_mount, update, 50, 75, 108),
 #endif
 #if AP_CAMERA_ENABLED
-    SCHED_TASK_CLASS(AP_Camera,            &copter.camera,              update,          50,  75, 111),
+    SCHED_TASK_CLASS(AP_Camera, &copter.camera, update, 50, 75, 111),
 #endif
 #if HAL_LOGGING_ENABLED
-    SCHED_TASK(ten_hz_logging_loop,   10,    350, 114),
-    SCHED_TASK(twentyfive_hz_logging, 25,    110, 117),
-    SCHED_TASK_CLASS(AP_Logger,            &copter.logger,              periodic_tasks, 400, 300, 120),
+    SCHED_TASK(ten_hz_logging_loop, 10, 350, 114),
+    SCHED_TASK(twentyfive_hz_logging, 25, 110, 117),
+    SCHED_TASK_CLASS(AP_Logger, &copter.logger, periodic_tasks, 400, 300, 120),
 #endif
-    SCHED_TASK_CLASS(AP_InertialSensor,    &copter.ins,                 periodic,       400,  50, 123),
+    SCHED_TASK_CLASS(AP_InertialSensor, &copter.ins, periodic, 400, 50, 123),
 
 #if HAL_LOGGING_ENABLED
-    SCHED_TASK_CLASS(AP_Scheduler,         &copter.scheduler,           update_logging, 0.1,  75, 126),
+    SCHED_TASK_CLASS(AP_Scheduler, &copter.scheduler, update_logging, 0.1, 75, 126),
 #endif
 #if AP_RPM_ENABLED
-    SCHED_TASK_CLASS(AP_RPM,               &copter.rpm_sensor,          update,          40, 200, 129),
+    SCHED_TASK_CLASS(AP_RPM, &copter.rpm_sensor, update, 40, 200, 129),
 #endif
 #if AP_TEMPCALIBRATION_ENABLED
-    SCHED_TASK_CLASS(AP_TempCalibration,   &copter.g2.temp_calibration, update,          10, 100, 135),
+    SCHED_TASK_CLASS(AP_TempCalibration, &copter.g2.temp_calibration, update, 10, 100, 135),
 #endif
 #if HAL_ADSB_ENABLED || AP_ADSB_AVOIDANCE_ENABLED
-    SCHED_TASK(avoidance_adsb_update, 10,    100, 138),
+    SCHED_TASK(avoidance_adsb_update, 10, 100, 138),
 #endif  // HAL_ADSB_ENABLED || AP_ADSB_AVOIDANCE_ENABLED
 #if AP_COPTER_ADVANCED_FAILSAFE_ENABLED
-    SCHED_TASK(afs_fs_check,          10,    100, 141),
+    SCHED_TASK(afs_fs_check, 10, 100, 141),
 #endif
 #if AP_TERRAIN_AVAILABLE
-    SCHED_TASK(terrain_update,        10,    100, 144),
+    SCHED_TASK(terrain_update, 10, 100, 144),
 #endif
 #if AP_WINCH_ENABLED
-    SCHED_TASK_CLASS(AP_Winch,             &copter.g2.winch,            update,          50,  50, 150),
+    SCHED_TASK_CLASS(AP_Winch, &copter.g2.winch, update, 50, 50, 150),
 #endif
 #ifdef USERHOOK_FASTLOOP
-    SCHED_TASK(userhook_FastLoop,    100,     75, 153),
+    SCHED_TASK(userhook_FastLoop, 100, 75, 153),
 #endif
 #ifdef USERHOOK_50HZLOOP
-    SCHED_TASK(userhook_50Hz,         50,     75, 156),
+    SCHED_TASK(userhook_50Hz, 50, 75, 156),
 #endif
 #ifdef USERHOOK_MEDIUMLOOP
-    SCHED_TASK(userhook_MediumLoop,   10,     75, 159),
+    SCHED_TASK(userhook_MediumLoop, 10, 75, 159),
 #endif
 #ifdef USERHOOK_SLOWLOOP
-    SCHED_TASK(userhook_SlowLoop,      3.3,   75, 162),
+    SCHED_TASK(userhook_SlowLoop, 3.3, 75, 162),
 #endif
 #ifdef USERHOOK_SUPERSLOWLOOP
-    SCHED_TASK(userhook_SuperSlowLoop, 1,     75, 165),
+    SCHED_TASK(userhook_SuperSlowLoop, 1, 75, 165),
 #endif
 #if HAL_BUTTON_ENABLED
-    SCHED_TASK_CLASS(AP_Button,            &copter.button,              update,           5, 100, 168),
+    SCHED_TASK_CLASS(AP_Button, &copter.button, update, 5, 100, 168),
 #endif
 #if AP_INERTIALSENSOR_FAST_SAMPLE_WINDOW_ENABLED
     // don't delete this, there is an equivalent (virtual) in AP_Vehicle for the non-rate loop case
-    SCHED_TASK(update_dynamic_notch_at_specified_rate_main,                       LOOP_RATE, 200, 215),
+    SCHED_TASK(update_dynamic_notch_at_specified_rate_main, LOOP_RATE, 200, 215),
 #endif
 };
 
@@ -591,13 +615,16 @@ void Copter::rc_loop()
 void Copter::throttle_loop()
 {
     // update throttle_low_comp value (controls priority of throttle vs attitude control)
+    // 翻译：更新throttle_low_comp值（控制油门与姿态控制的优先级）
     update_throttle_mix();
 
     // check auto_armed status
+    // 翻译：检查自动武装状态
     update_auto_armed();
 
 #if FRAME_CONFIG == HELI_FRAME
     // update rotor speed
+    // 翻译：更新转子速度
     heli_update_rotor_speed_targets();
 
     // update trad heli swash plate movement
@@ -607,6 +634,39 @@ void Copter::throttle_loop()
     // compensate for ground effect (if enabled)
     update_ground_effect_detector();
     update_ekf_terrain_height_stable();
+    uart_sensor_loop();
+}
+
+void Copter::uart_sensor_loop()
+{
+    // 获取 SERIAL5 的句柄
+    AP_HAL::UARTDriver *uart = hal.serial(4); // SERIAL5 是 serial instance 4（从0开始）
+
+    if (uart == nullptr)
+        return;
+    // gcs().send_text(MAV_SEVERITY_INFO, "usart hello");
+    // 读取所有可用数据
+    // while (uart->available())
+    // {
+    //     char c = uart->read();
+    //     static char rx_buf[64];
+    //     static uint8_t idx = 0;
+
+    //     if (c == '\n' || idx >= sizeof(rx_buf) - 1)
+    //     {
+    //         rx_buf[idx] = '\0';
+    //         // 处理接收到的字符串
+    //         if (strncmp(rx_buf, "CMD:HELLO", 9) == 0)
+    //         {
+                uart->write("ACK:HELLO\n");
+        //     }
+        //     idx = 0;
+        // }
+        // else
+        // {
+        //     rx_buf[idx++] = c;
+        // }
+    // }
 }
 
 // update_batt_compass - read battery and compass

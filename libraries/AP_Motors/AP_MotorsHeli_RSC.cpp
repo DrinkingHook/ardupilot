@@ -351,6 +351,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
 
     case RotorControlState::ACTIVE:
         // set main rotor ramp to increase to full speed
+        // 翻译：设置主旋翼斜坡以增加到全速
         update_rotor_ramp(1.0f, dt);
 
         // set fast idle timer so next time RSC goes to idle, the cooldown timer starts
@@ -370,6 +371,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
             _control_output = _idle_throttle + (_rotor_ramp_output * (_desired_speed - _idle_throttle));
         } else if (_control_mode == ROTOR_CONTROL_MODE_THROTTLECURVE) {
             // throttle output from throttle curve based on collective position
+            // 翻译：根据集体位置从油门曲线输出油门
             float throttlecurve = calculate_throttlecurve(_collective_in);
             _control_output = _idle_throttle + (_rotor_ramp_output * (throttlecurve - _idle_throttle));
         } else if (_control_mode == ROTOR_CONTROL_MODE_AUTOTHROTTLE) {

@@ -7,6 +7,7 @@
 static uint32_t auto_disarm_begin;
 
 // auto_disarm_check - disarms the copter if it has been sitting on the ground in manual mode with throttle low for at least 15 seconds
+// 翻译：auto_disarm_check - 如果直升机在手动模式下静止在地面上，油门低于15秒，则解除武装
 void Copter::auto_disarm_check()
 {
     uint32_t tnow_ms = millis();

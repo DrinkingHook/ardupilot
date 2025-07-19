@@ -143,7 +143,9 @@ void Copter::heli_update_landing_swash()
 }
 
 // convert motor interlock switch's position to desired rotor speed expressed as a value from 0 to 1
+// 翻译：将电动机互锁开关的位置转换为所需的转子速度，以0到1的值表示
 // returns zero if motor interlock auxiliary switch hasn't been defined
+// 翻译：如果未定义电动机互锁辅助开关，则返回零
 float Copter::get_pilot_desired_rotor_speed() const
 {
     RC_Channel *rc_ptr = rc().find_channel_for_option(RC_Channel::AUX_FUNC::MOTOR_INTERLOCK);
@@ -155,9 +157,11 @@ float Copter::get_pilot_desired_rotor_speed() const
 }
 
 // heli_update_rotor_speed_targets - reads pilot input and passes new rotor speed targets to heli motors object
+// 翻译：heli_update_rotor_speed_targets - 读取飞行员输入并将新的转子速度目标传递给直升机电动机对象
 void Copter::heli_update_rotor_speed_targets()
 {
     // get rotor control method
+    // 翻译：获取转子控制方法
     uint8_t rsc_control_mode = motors->get_rsc_mode();
 
     switch (rsc_control_mode) {
@@ -184,10 +188,10 @@ void Copter::heli_update_rotor_speed_targets()
 
 }
 
-
 // heli_update_autorotation - determines if aircraft is in autorotation and sets motors flag and switches
-// to autorotation flight mode if manual collective is not being used.
 // 翻译：heli_update_autorotation - 确定飞行器是否处于自动旋转状态，并设置电动机标志和开关
+// to autorotation flight mode if manual collective is not being used.
+// 翻译：如果没有使用手动集体，则自动飞行模式。
 void Copter::heli_update_autorotation()
 {
     bool in_autorotation_mode = false;

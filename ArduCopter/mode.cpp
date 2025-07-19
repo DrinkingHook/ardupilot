@@ -406,14 +406,18 @@ bool Copter::set_mode(const uint8_t new_mode, const ModeReason reason)
 }
 
 // update_flight_mode - calls the appropriate attitude controllers based on flight mode
+// 翻译：更新飞行模式 - 根据飞行模式调用适当的姿态控制器
 // called at 100hz or more
+// 翻译：每100Hz或更高频率调用
 void Copter::update_flight_mode()
 {
-#if AP_RANGEFINDER_ENABLED
+#if AP_RANGEFINDER_ENABLED //是否启用测距仪
     surface_tracking.invalidate_for_logging();  // invalidate surface tracking alt, flight mode will set to true if used
+                                                // 翻译：使表面跟踪高度无效，飞行模式将设置为true（如果使用）
 #endif
     attitude_control->landed_gain_reduction(copter.ap.land_complete); // Adjust gains when landed to attenuate ground oscillation
-
+                                                                      // 翻译：着陆时调整增益以减弱地面振动
+                                                             
     flightmode->run();
 }
 

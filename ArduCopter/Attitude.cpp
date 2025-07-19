@@ -32,6 +32,7 @@ void Copter::run_rate_controller_main()
  ****************************************************************/
 
 // update estimated throttle required to hover (if necessary)
+// 翻译：更新估计所需的悬停油门（如果需要）
 //  called at 100hz
 void Copter::update_throttle_hover()
 {
