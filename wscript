@@ -2,6 +2,7 @@
 # encoding: utf-8
 # flake8: noqa
 
+import optparse
 import os.path
 import os
 import sys
@@ -110,6 +111,21 @@ def add_build_options(g):
                      action='store_true',
                      default=False,
                      help=disable_description)
+
+        # also add entirely-lower-case equivalents with underscores
+        # replaced with dashes::
+        lower_enable_option = enable_option.lower().replace("_", "-")
+        if lower_enable_option != enable_option:
+            g.add_option(lower_enable_option,
+                         action='store_true',
+                         default=False,
+                         help=optparse.SUPPRESS_HELP)
+        lower_disable_option = disable_option.lower().replace("_", "-")
+        if lower_disable_option != disable_option:
+            g.add_option(lower_disable_option,
+                         action='store_true',
+                         default=False,
+                         help=optparse.SUPPRESS_HELP)
 
 def add_script_options(g):
     '''add any drivers or applets from libraries/AP_Scripting'''

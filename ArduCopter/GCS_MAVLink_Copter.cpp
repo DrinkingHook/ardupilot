@@ -661,9 +661,9 @@ MAV_RESULT GCS_MAVLINK_Copter::handle_MAV_CMD_CONDITION_YAW(const mavlink_comman
         if ((packet.param1 >= 0.0f)   &&
             (packet.param1 <= 360.0f) &&
             (is_zero(packet.param4) || is_equal(packet.param4,1.0f))) {
-            copter.flightmode->auto_yaw.set_fixed_yaw(
-                packet.param1,
-                packet.param2,
+            copter.flightmode->auto_yaw.set_fixed_yaw_rad(
+                radians(packet.param1),
+                radians(packet.param2),
                 (int8_t)packet.param3,
                 is_positive(packet.param4));
             return MAV_RESULT_ACCEPTED;
@@ -1115,26 +1115,26 @@ void GCS_MAVLINK_Copter::handle_message_set_position_target_local_ned(const mavl
     }
 
     // prepare yaw
-    float yaw_cd = 0.0f;
+    float yaw_rad = 0.0f;
     bool yaw_relative = false;
-    float yaw_rate_cds = 0.0f;
+    float yaw_rate_rads = 0.0f;
     if (!yaw_ignore) {
-        yaw_cd = degrees(packet.yaw) * 100.0f;
+        yaw_rad = packet.yaw;
         yaw_relative = packet.coordinate_frame == MAV_FRAME_BODY_NED || packet.coordinate_frame == MAV_FRAME_BODY_OFFSET_NED;
     }
     if (!yaw_rate_ignore) {
-        yaw_rate_cds = degrees(packet.yaw_rate) * 100.0f;
+        yaw_rate_rads = packet.yaw_rate;
     }
 
     // send request
     if (!pos_ignore && !vel_ignore) {
-        copter.mode_guided.set_destination_posvelaccel(pos_vector, vel_vector, accel_vector, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative);
+        copter.mode_guided.set_destination_posvelaccel(pos_vector, vel_vector, accel_vector, !yaw_ignore, yaw_rad, !yaw_rate_ignore, yaw_rate_rads, yaw_relative);
     } else if (pos_ignore && !vel_ignore) {
-        copter.mode_guided.set_velaccel(vel_vector, accel_vector, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative);
+        copter.mode_guided.set_velaccel(vel_vector, accel_vector, !yaw_ignore, yaw_rad, !yaw_rate_ignore, yaw_rate_rads, yaw_relative);
     } else if (pos_ignore && vel_ignore && !acc_ignore) {
-        copter.mode_guided.set_accel(accel_vector, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative);
+        copter.mode_guided.set_accel(accel_vector, !yaw_ignore, yaw_rad, !yaw_rate_ignore, yaw_rate_rads, yaw_relative);
     } else if (!pos_ignore && vel_ignore && acc_ignore) {
-        copter.mode_guided.set_destination(pos_vector, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative, false);
+        copter.mode_guided.set_destination(pos_vector, !yaw_ignore, yaw_rad, !yaw_rate_ignore, yaw_rate_rads, yaw_relative, false);
     } else {
         // input is not valid so stop
         copter.mode_guided.init(true);
@@ -1207,13 +1207,13 @@ void GCS_MAVLINK_Copter::handle_message_set_position_target_global_int(const mav
     }
 
     // prepare yaw
-    float yaw_cd = 0.0f;
-    float yaw_rate_cds = 0.0f;
+    float yaw_rad = 0.0f;
+    float yaw_rate_rads = 0.0f;
     if (!yaw_ignore) {
-        yaw_cd = degrees(packet.yaw) * 100.0f;
+        yaw_rad = packet.yaw;
     }
     if (!yaw_rate_ignore) {
-        yaw_rate_cds = degrees(packet.yaw_rate) * 100.0f;
+        yaw_rate_rads = packet.yaw_rate;
     }
 
     // send targets to the appropriate guided mode controller
@@ -1231,13 +1231,13 @@ void GCS_MAVLINK_Copter::handle_message_set_position_target_global_int(const mav
             copter.mode_guided.init(true);
             return;
         }
-        copter.mode_guided.set_destination_posvel(pos_neu_cm, vel_vector, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds);
+        copter.mode_guided.set_destination_posvel(pos_neu_cm, vel_vector, !yaw_ignore, yaw_rad, !yaw_rate_ignore, yaw_rate_rads);
     } else if (pos_ignore && !vel_ignore) {
-        copter.mode_guided.set_velaccel(vel_vector, accel_vector, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds);
+        copter.mode_guided.set_velaccel(vel_vector, accel_vector, !yaw_ignore, yaw_rad, !yaw_rate_ignore, yaw_rate_rads);
     } else if (pos_ignore && vel_ignore && !acc_ignore) {
-        copter.mode_guided.set_accel(accel_vector, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds);
+        copter.mode_guided.set_accel(accel_vector, !yaw_ignore, yaw_rad, !yaw_rate_ignore, yaw_rate_rads);
     } else if (!pos_ignore && vel_ignore && acc_ignore) {
-        copter.mode_guided.set_destination(loc, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds);
+        copter.mode_guided.set_destination(loc, !yaw_ignore, yaw_rad, !yaw_rate_ignore, yaw_rate_rads);
     } else {
         // input is not valid so stop
         copter.mode_guided.init(true);
