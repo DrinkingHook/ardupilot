@@ -393,16 +393,20 @@ void AP_AHRS::update(bool skip_ins_update)
 {
     // periodically checks to see if we should update the AHRS
     // orientation (e.g. based on the AHRS_ORIENTATION parameter)
+    // 翻译：定期检查以查看我们是否应该更新AHRS方向（例如，基于AHRS_ERINIENTATION参数）
     // allow for runtime change of orientation
     // this makes initial config easier
+    // 允许运行时更改方向，这使初始配置更容易
     update_orientation();
 
     if (!skip_ins_update) {
         // tell the IMU to grab some data
+        // 翻译：告诉IMU获取一些数据
         AP::ins().update();
     }
 
     // support locked access functions to AHRS data
+    // 翻译：支持对AHRS数据的锁定访问函数
     WITH_SEMAPHORE(_rsem);
 
     // see if we have to restore home after a watchdog reset:

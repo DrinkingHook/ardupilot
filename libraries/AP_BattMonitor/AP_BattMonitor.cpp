@@ -1154,6 +1154,7 @@ bool AP_BattMonitor::arming_checks(size_t buflen, char *buffer) const
 }
 
 // Check's each smart battery instance for its powering off state and broadcasts notifications
+// 翻译：检查每个智能电池实例是否有电源并广播通知
 void AP_BattMonitor::checkPoweringOff(void)
 {
     for (uint8_t i = 0; i < _num_instances; i++) {

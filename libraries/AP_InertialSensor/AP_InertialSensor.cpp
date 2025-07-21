@@ -1890,10 +1890,12 @@ void AP_InertialSensor::set_primary(uint8_t instance)
 
 /*
   update gyro and accel values from backends
+  翻译: 更新来自后端的陀螺仪和加速度计值
  */
 void AP_InertialSensor::update(void)
 {
     // during initialisation update() may be called without
+    // 翻译：在初始化期间可以不用
     // wait_for_sample(), and a wait is implied
     wait_for_sample();
 

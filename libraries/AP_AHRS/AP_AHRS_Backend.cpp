@@ -68,6 +68,7 @@ void AP_AHRS::add_trim(float roll_in_radians, float pitch_in_radians, bool save_
 }
 
 // Set the board mounting orientation from AHRS_ORIENTATION parameter
+// 翻译：从AHRS_ORIENTATION参数设置板载安装方向
 void AP_AHRS::update_orientation()
 {
     const uint32_t now_ms = AP_HAL::millis();

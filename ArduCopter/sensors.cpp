@@ -1,6 +1,7 @@
 #include "Copter.h"
 
 // return barometric altitude in centimeters
+// 翻译：返回气压高度（以厘米为单位）
 void Copter::read_barometer(void)
 {
     barometer.update();
@@ -8,6 +9,7 @@ void Copter::read_barometer(void)
     baro_alt = barometer.get_altitude() * 100.0f;
 }
 
+// 测距仪
 #if AP_RANGEFINDER_ENABLED
 void Copter::init_rangefinder(void)
 {
@@ -22,6 +24,7 @@ void Copter::init_rangefinder(void)
 }
 
 // return rangefinder altitude in centimeters
+// 翻译：返回测距仪高度（以厘米为单位）
 void Copter::read_rangefinder(void)
 {
     rangefinder.update();
