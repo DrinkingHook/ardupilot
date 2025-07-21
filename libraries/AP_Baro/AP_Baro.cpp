@@ -798,6 +798,7 @@ bool AP_Baro::should_log() const
 
 /*
   call update on all drivers
+  翻译: 更新所有驱动程序
  */
 void AP_Baro::update(void)
 {
