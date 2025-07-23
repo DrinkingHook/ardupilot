@@ -12,6 +12,7 @@
 static int8_t heli_dynamic_flight_counter;
 
 // heli_init - perform any special initialisation required for the tradheli
+// 翻译: 执行传统直升机所需的任何特殊初始化
 void Copter::heli_init()
 {
     // pre-load stab col values as mode is initialized as Stabilize, but stabilize_init() function is not run on start-up.

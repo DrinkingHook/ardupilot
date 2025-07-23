@@ -84,6 +84,7 @@ void Copter::update_using_interlock()
 {
 #if FRAME_CONFIG == HELI_FRAME
     // helicopters are always using motor interlock
+    // 翻译：直升机始终使用电动机互锁
     ap.using_interlock = true;
 #else
     // check if we are using motor interlock control on an aux switch or are in throw mode

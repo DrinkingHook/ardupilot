@@ -2530,6 +2530,7 @@ bool AP_InertialSensor::calibrate_gyros()
 
 /*
   perform a simple 1D accel calibration, returning mavlink result code
+    翻译: 执行简单的1D加速度计校准，返回mavlink结果代码
  */
 MAV_RESULT AP_InertialSensor::simple_accel_cal()
 {
@@ -2549,15 +2550,18 @@ MAV_RESULT AP_InertialSensor::simple_accel_cal()
     Vector3f rotated_gravity(0, 0, -GRAVITY_MSS);
     
     // exit immediately if calibration is already in progress
+    // 翻译：如果校准已经在进行中，则立即退出
     if (calibrating()) {
         return MAV_RESULT_TEMPORARILY_REJECTED;
     }
-
+    // 期望延迟20s
     EXPECT_DELAY_MS(20000);
     // record we are calibrating
+    // 翻译：记录我们正在校准
     _calibrating_accel = true;
 
     // flash leds to tell user to keep the IMU still
+    // 翻译：闪烁LED灯告诉用户保持IMU静止
     AP_Notify::flags.initialising = true;
 
     /*
@@ -2698,6 +2702,7 @@ MAV_RESULT AP_InertialSensor::simple_accel_cal()
 
 #if AP_AHRS_ENABLED
     // and reset state estimators
+    // 翻译：重置状态估计器
     AP::ahrs().reset();
 #endif
 

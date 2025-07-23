@@ -410,16 +410,20 @@ void AP_AHRS::update(bool skip_ins_update)
     WITH_SEMAPHORE(_rsem);
 
     // see if we have to restore home after a watchdog reset:
+    // 翻译：查看是否需要在看门狗重置后恢复home
     if (!_checked_watchdog_home) {
         load_watchdog_home();
         _checked_watchdog_home = true;
     }
 
     // drop back to normal priority if we were boosted by the INS
+    // 翻译：如果INS提升了优先级，则恢复到正常优先级
     // calling delay_microseconds_boost()
+    // 翻译：调用delay_microseconds_boost()
     hal.scheduler->boost_end();
 
     // update autopilot-body-to-vehicle-body from _trim parameters:
+    // 翻译：从_trim参数更新autopilot-body-to-vehicle-body
     update_trim_rotation_matrices();
 
 #if AP_AHRS_DCM_ENABLED
@@ -462,6 +466,7 @@ void AP_AHRS::update(bool skip_ins_update)
 #endif
 
     // push gyros if optical flow present
+    // 翻译：如果存在光流，则推送陀螺仪
     if (hal.opticalflow) {
         const Vector3f &exported_gyro_bias = get_gyro_drift();
         hal.opticalflow->push_gyro_bias(exported_gyro_bias.x, exported_gyro_bias.y);

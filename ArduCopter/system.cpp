@@ -16,15 +16,18 @@ static void failsafe_check_static()
 void Copter::init_ardupilot()
 {
     // init winch
+    // 翻译：初始化绞盘
 #if AP_WINCH_ENABLED
     g2.winch.init();
 #endif
 
     // initialise notify system
+    // 翻译：初始化通知系统
     notify.init();
     notify_flight_mode();
 
     // initialise battery monitor
+    // 初始化电池监控
     battery.init();
 
 #if AP_RSSI_ENABLED
@@ -42,17 +45,19 @@ void Copter::init_ardupilot()
 #endif
 
     // update motor interlock state
+    // 翻译：更新电动机互锁状态
     update_using_interlock();
 
 #if FRAME_CONFIG == HELI_FRAME
     // trad heli specific initialisation
+    // 翻译：传统直升机特定初始化
     heli_init();
 #endif
 #if FRAME_CONFIG == HELI_FRAME
     input_manager.set_loop_rate(scheduler.get_loop_rate_hz());
 #endif
 
-    init_rc_in();               // sets up rc channels from radio
+    init_rc_in();               // sets up rc channels from radio 翻译：从无线电设置RC通道
 
 #if AP_RANGEFINDER_ENABLED
     // initialise surface to be tracked in SurfaceTracking
@@ -64,6 +69,7 @@ void Copter::init_ardupilot()
     allocate_motors();
 
     // initialise rc channels including setting mode
+    // 翻译：初始化RC通道，包括设置模式
     rc().convert_options(RC_Channel::AUX_FUNC::ARMDISARM_UNUSED, RC_Channel::AUX_FUNC::ARMDISARM_AIRMODE);
     rc().init();
 
@@ -205,20 +211,23 @@ void Copter::init_ardupilot()
     ap.initialised = true;
 }
 
-
 //******************************************************************************
-//This function does all the calibrations, etc. that we need during a ground start
+// This function does all the calibrations, etc. that we need during a ground start
+// 翻译：此功能可以完成我们在接地开始期间需要的所有校准等
 //******************************************************************************
 void Copter::startup_INS_ground()
 {
     // initialise ahrs (may push imu calibration into the mpu6000 if using that device).
+    // 翻译：初始化ahrs（如果使用该设备，可能会将imu校准推入mpu6000）。
     ahrs.init();
     ahrs.set_vehicle_class(AP_AHRS::VehicleClass::COPTER);
 
     // Warm up and calibrate gyro offsets
+    // 翻译：热身并校准陀螺仪偏移
     ins.init(scheduler.get_loop_rate_hz());
 
     // reset ahrs including gyro bias
+    // 翻译：重置ahrs，包括陀螺仪偏差
     ahrs.reset();
 }
 

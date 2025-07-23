@@ -31,9 +31,11 @@ public:
     float get_pilot_desired_collective(int16_t control_in);
 
     // set_use_stab_col - setter function
+    // 翻译：设置是否使用稳定模式集体范围
     void set_use_stab_col(bool use) { _im_flags_heli.use_stab_col = use; }
 
     // set_heli_stab_col_ramp - setter function
+    // 翻译：设置稳定模式集体斜坡
     void set_stab_col_ramp(float ramp) { _stab_col_ramp = constrain_float(ramp, 0.0, 1.0); }
 
     // parameter_check - returns true if input manager specific parameters are sensible, used for pre-arm check
