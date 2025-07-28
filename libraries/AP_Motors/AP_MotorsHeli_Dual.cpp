@@ -523,6 +523,7 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
     }
 
     // scale collective pitch for front swashplate (servos 1,2,3)
+    // 翻译：为前斜盘（伺服1,2,3）缩放集体俯仰
     float collective_scaler = ((float)(_collective_max - _collective_min)) * 0.001f;
     float collective_out_scaled = collective_out * collective_scaler + (_collective_min - 1000) * 0.001f;
 
@@ -531,6 +532,7 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
     float collective2_out_scaled = collective2_out * collective2_scaler + (_collective2_min - 1000) * 0.001f;
 
     // feed power estimate into main rotor controller
+    // 翻译：将功率估计值输入主转子控制器
     // ToDo: add main rotor cyclic power?
     _main_rotor.set_collective(fabsf(collective_out));
 

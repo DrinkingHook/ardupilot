@@ -66,6 +66,7 @@ void Copter::init_ardupilot()
 #endif
 
     // allocate the motors class
+    // 翻译：分配电动机类
     allocate_motors();
 
     // initialise rc channels including setting mode
@@ -74,9 +75,11 @@ void Copter::init_ardupilot()
     rc().init();
 
     // sets up motors and output to escs
+    // 翻译：设置电动机并输出到esc
     init_rc_out();
 
     // check if we should enter esc calibration mode
+    // 翻译：检查是否应进入esc校准模式
     esc_calibration_startup_check();
 
     // motors initialised so parameters can be sent
