@@ -28,7 +28,7 @@ AP_EFI_Backend::AP_EFI_Backend(AP_EFI &_frontend) :
 
 void AP_EFI_Backend::copy_to_frontend() 
 {
-    WITH_SEMAPHORE(frontend.sem);
+    WITH_SEMAPHORE(frontend.sem); //线程加锁，保护数据读取
     frontend.state = internal_state;
 }
 
