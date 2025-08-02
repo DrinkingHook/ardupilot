@@ -518,7 +518,7 @@ protected:
     AP_Int16        streamRates[NUM_STREAMS];
 
     void handle_heartbeat(const mavlink_message_t &msg);
-
+    // void handle_efi_status(const mavlink_message_t &msg) const;
     virtual bool persist_streamrates() const { return false; }
     void handle_request_data_stream(const mavlink_message_t &msg);
 
