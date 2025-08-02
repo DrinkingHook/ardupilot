@@ -26,6 +26,7 @@
 #include "AP_EFI_Loweheiser.h"
 #include "AP_EFI_Scripting.h"
 #include "AP_EFI_MAV.h"
+#include "AP_KDECAN/AP_KDECAN.h"
 
 #include <AP_Logger/AP_Logger.h>
 #include <GCS_MAVLink/GCS.h>
@@ -284,36 +285,36 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         return;
     }
 
-    float ignition_voltage;
-    if (isnan(state.ignition_voltage) ||
-        is_equal(state.ignition_voltage, -1.0f)) {
-        // zero means "unknown" in mavlink, 0.0001 means 0 volts
-        ignition_voltage = 0;
-    } else if (is_zero(state.ignition_voltage)) {
-        // zero means "unknown" in mavlink, 0.0001 means 0 volts
-        ignition_voltage = 0.0001f;
-    } else {
-        ignition_voltage = state.ignition_voltage;
-    };
+    // float ignition_voltage;
+    // if (isnan(state.ignition_voltage) ||
+    //     is_equal(state.ignition_voltage, -1.0f)) {
+    //     // zero means "unknown" in mavlink, 0.0001 means 0 volts
+    //     ignition_voltage = 0;
+    // } else if (is_zero(state.ignition_voltage)) {
+    //     // zero means "unknown" in mavlink, 0.0001 means 0 volts
+    //     ignition_voltage = 0.0001f;
+    // } else {
+    //     ignition_voltage = state.ignition_voltage;
+    // };
 
     // If fuel pressure is supported, but is exactly zero, shift it to 0.0001
     // to indicate that it is supported.
-    float fuel_pressure = state.fuel_pressure;
-    if (is_zero(fuel_pressure) && state.fuel_pressure_status != Fuel_Pressure_Status::NOT_SUPPORTED) {
-        fuel_pressure = 0.0001;
-    }
+    // float fuel_pressure = state.fuel_pressure;
+    // if (is_zero(fuel_pressure) && state.fuel_pressure_status != Fuel_Pressure_Status::NOT_SUPPORTED) {
+    //     fuel_pressure = 0.0001;
+    // }
 
     mavlink_msg_efi_status_send(
         chan,
         AP_EFI::is_healthy(),
         state.ecu_index,
-        state.engine_speed_rpm,
-        state.estimated_consumed_fuel_volume_cm3,
-        state.fuel_consumption_rate_cm3pm,
-        state.engine_load_percent,
-        state.throttle_position_percent,
-        state.spark_dwell_time_ms,
-        state.atmospheric_pressure_kpa,
+        (AP_KDECANUSE::int6),
+        (AP_KDECANUSE::int2),
+        (AP_KDECANUSE::int3),
+        (AP_KDECANUSE::int4),
+        (AP_KDECANUSE::int5),
+        (AP_KDECANUSE::int1),
+        (AP_KDECANUSE::int7),
         state.intake_manifold_pressure_kpa,
         KELVIN_TO_C(state.intake_manifold_temperature),
         KELVIN_TO_C(state.cylinder_status.cylinder_head_temperature),
@@ -322,9 +323,89 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature),
         state.throttle_out,
         state.pt_compensation,
-        ignition_voltage,
-        fuel_pressure
-        );
+        0,
+        0);
+    // (AP_KDECANUSE::int1) / 3000.0f,
+    //     (AP_KDECANUSE::int2) / 3000.0f,
+    //     (AP_KDECANUSE::int3) / 3000.0f,
+    //     (AP_KDECANUSE::int4) / 3000.0f,
+    //     (AP_KDECANUSE::int5) / 3000.0f,
+    //     (AP_KDECANUSE::int6) / 3000.0f,
+    //     (AP_KDECANUSE::int7) / 3000.0f,
+    //     (AP_KDECANUSE::int8) / 3000.0f,
+    // float qac = (AP_KDECANUSE::int1) / 3000.0f;
+    // float qac2 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
+    // float qac3 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
+    // float qac4 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
+    // float qac5 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
+    // float qac6 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
+    // float qac7 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
+    // float qac8 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
+    // mavlink_msg_efi_status_send(
+    //     chan,
+    //     AP_EFI::is_healthy(),
+    //     qac,
+    //     qac2,
+    //     qac3,
+    //     qac4,
+    //     qac5,
+    //     qac6,
+    //     qac7,
+    //     qac8,
+    //     0,
+    //     0,
+    //     0,
+    //     0,
+    //     0,
+    //     0,
+    //     0,
+    //     0,
+    //     0,
+    //     0);
+    // mavlink_msg_efi_status_send(
+    //     chan,
+    //     AP_EFI::is_healthy(), // is_healthy
+    //     0,                    // ecu_index
+    //     1000.0f,              // engine_speed_rpm
+    //     50.0f,                // estimated_consumed_fuel_volume_cm3
+    //     5.0f,                 // fuel_consumption_rate_cm3pm
+    //     80.0f,                // engine_load_percent
+    //     30.0f,                // throttle_position_percent
+    //     2.5f,                 // spark_dwell_time_ms
+    //     101.3f,               // atmospheric_pressure_kpa
+    //     98.0f,                // intake_manifold_pressure_kpa
+    //     25.0f,                // intake_manifold_temperature (摄氏度)
+    //     120.0f,               // cylinder_head_temperature (摄氏度)
+    //     10.0f,                // ignition_timing_deg
+    //     3.0f,                 // injection_time_ms
+    //     400.0f,               // exhaust_gas_temperature (摄氏度)
+    //     40.0f,                // throttle_out
+    //     1.0f,                 // pt_compensation
+    //     12.5f,                // ignition_voltage
+    //     3.5f                  // fuel_pressure
+    // );
+
+    // mavlink_msg_efi_status_send(chan,
+    //                             AP_EFI::is_healthy(),
+    //                             //   AP_KDECANUSE::int1为uint16_t类型。转换为有符号整数后除以3000.0f 得到浮点数,保留两位小数
+    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int1)) / 3000.0f,
+    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int2)) / 3000.0f,
+    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int3)) / 3000.0f,
+    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int4)) / 3000.0f,
+    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int5)) / 3000.0f,
+    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int6)) / 3000.0f,
+    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int7)) / 3000.0f,
+    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int8)) / 3000.0f,
+    //                             AP_KDECANUSE::int9,  // intake_manifold_pressure
+    //                             AP_KDECANUSE::int10, // intake_manifold_temperature
+    //                             AP_KDECANUSE::int11, // cylinder_head_temperature
+    //                             AP_KDECANUSE::int12, // ignition_timing
+    //                             AP_KDECANUSE::int13, // injection_time
+    //                             AP_KDECANUSE::int14, // exhaust_gas_temperature
+    //                             AP_KDECANUSE::int15, // throttle_out
+    //                             AP_KDECANUSE::int16, // pt_compensation
+    //                             0,
+    //                             0);
 }
 
 // get a copy of state structure
@@ -335,9 +416,9 @@ void AP_EFI::get_state(EFI_State &_state)
 }
 
 void AP_EFI::handle_EFI_message(const mavlink_message_t &msg) {
-    if (backend != nullptr) {
-        backend->handle_EFI_message(msg);
-    }
+    // if (backend != nullptr) {
+    //     backend->handle_EFI_message(msg);
+    // }
 }
 
 namespace AP {
