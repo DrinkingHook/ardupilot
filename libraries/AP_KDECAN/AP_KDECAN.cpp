@@ -587,6 +587,7 @@ bool AP_KDECANUSE::RC_failsafe = false;
 // uint8_t AP_KDECANUSE::battery_bai = 0;
 // uint8_t AP_KDECANUSE::VCU_status = 0;
 
+uint16_t AP_KDECANUSE::int0 = 0;
 uint16_t AP_KDECANUSE::int1 = 0;
 uint16_t AP_KDECANUSE::int2 = 0;
 uint16_t AP_KDECANUSE::int3 = 0;
@@ -602,29 +603,28 @@ uint16_t AP_KDECANUSE::int12 = 0;
 uint16_t AP_KDECANUSE::int13 = 0;
 uint16_t AP_KDECANUSE::int14 = 0;
 uint16_t AP_KDECANUSE::int15 = 0;
-uint16_t AP_KDECANUSE::int16 = 0;
 
-uint16_t AP_KDECANUSE::qgc_read1 = 0;
-uint16_t AP_KDECANUSE::qgc_read2 = 0;
-uint16_t AP_KDECANUSE::qgc_read3 = 0;
-uint16_t AP_KDECANUSE::qgc_read4 = 0;
-uint16_t AP_KDECANUSE::qgc_read5 = 0;
-uint16_t AP_KDECANUSE::qgc_read6 = 0;
-uint16_t AP_KDECANUSE::qgc_read7 = 0;
-uint16_t AP_KDECANUSE::qgc_read8 = 0;
+// uint16_t AP_KDECANUSE::qgc_read1 = 0;
+// uint16_t AP_KDECANUSE::qgc_read2 = 0;
+// uint16_t AP_KDECANUSE::qgc_read3 = 0;
+// uint16_t AP_KDECANUSE::qgc_read4 = 0;
+// uint16_t AP_KDECANUSE::qgc_read5 = 0;
+// uint16_t AP_KDECANUSE::qgc_read6 = 0;
+// uint16_t AP_KDECANUSE::qgc_read7 = 0;
+// uint16_t AP_KDECANUSE::qgc_read8 = 0;
 
-uint16_t AP_KDECANUSE::qgc_send1 = 0;
-uint16_t AP_KDECANUSE::qgc_send2 = 0;
-uint16_t AP_KDECANUSE::qgc_send3 = 0;
-uint16_t AP_KDECANUSE::qgc_send4 = 0;
-float AP_KDECANUSE::qgc_send5 = 0;
-float AP_KDECANUSE::qgc_send6 = 0;
-float AP_KDECANUSE::qgc_send7 = 0;
-float AP_KDECANUSE::qgc_send8 = 0;
-float AP_KDECANUSE::qgc_send9 = 0;
-float AP_KDECANUSE::qgc_send10 = 0;
-float AP_KDECANUSE::qgc_send11 = 0;
-float AP_KDECANUSE::qgc_send12 = 0;
+// uint16_t AP_KDECANUSE::qgc_send1 = 0;
+// uint16_t AP_KDECANUSE::qgc_send2 = 0;
+// uint16_t AP_KDECANUSE::qgc_send3 = 0;
+// uint16_t AP_KDECANUSE::qgc_send4 = 0;
+// float AP_KDECANUSE::qgc_send5 = 0;
+// float AP_KDECANUSE::qgc_send6 = 0;
+// float AP_KDECANUSE::qgc_send7 = 0;
+// float AP_KDECANUSE::qgc_send8 = 0;
+// float AP_KDECANUSE::qgc_send9 = 0;
+// float AP_KDECANUSE::qgc_send10 = 0;
+// float AP_KDECANUSE::qgc_send11 = 0;
+// float AP_KDECANUSE::qgc_send12 = 0;
 
 uint16_t AP_KDECANUSE::CAN_HZ = 0;
 
@@ -734,16 +734,16 @@ void AP_KDECAN_Driver::handle_frame(AP_HAL::CANFrame &frame) // 处理帧
     //     AP_KDECANUSE::VCU_status = frame.data[7];                       // 获取VCU状态
     //     break;
     case 0xBD: // 接收发动机温度数据1～4
-        AP_KDECANUSE::int1 = (frame.data[0] << 8) | frame.data[1];
-        AP_KDECANUSE::int2 = (frame.data[2] << 8) | frame.data[3];
-        AP_KDECANUSE::int3 = (frame.data[4] << 8) | frame.data[5];
-        AP_KDECANUSE::int4 = (frame.data[6] << 8) | frame.data[7];
+        AP_KDECANUSE::int0 = (frame.data[0] << 8) | frame.data[1];
+        AP_KDECANUSE::int1 = (frame.data[2] << 8) | frame.data[3];
+        AP_KDECANUSE::int2 = (frame.data[4] << 8) | frame.data[5];
+        AP_KDECANUSE::int3 = (frame.data[6] << 8) | frame.data[7]; 
         break;
     case 0xBE: // 接收发动机温度数据5～8
-        AP_KDECANUSE::int5 = (frame.data[0] << 8) | frame.data[1];
-        AP_KDECANUSE::int6 = (frame.data[2] << 8) | frame.data[3];
-        AP_KDECANUSE::int7 = (frame.data[4] << 8) | frame.data[5];
-        AP_KDECANUSE::int8 = (frame.data[6] << 8) | frame.data[7];
+        AP_KDECANUSE::int4 = (frame.data[0] << 8) | frame.data[1];//滑油压力
+        AP_KDECANUSE::int5 = (frame.data[2] << 8) | frame.data[3];//水温
+        AP_KDECANUSE::int6 = (frame.data[4] << 8) | frame.data[5];//油温
+        AP_KDECANUSE::int7 = (frame.data[6] << 8) | frame.data[7];//缸温
         break;
     // case 0xBF: // 自定义数据，16位
     //     AP_KDECANUSE::int9 = (frame.data[0] << 8) | frame.data[1];
