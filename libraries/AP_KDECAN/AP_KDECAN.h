@@ -161,6 +161,7 @@ public:
     // static uint16_t LD8;
     // static bool CAN_LDread;
     // 上传16位整数
+    static uint16_t int0;
     static uint16_t int1;
     static uint16_t int2;
     static uint16_t int3;
@@ -176,31 +177,30 @@ public:
     static uint16_t int13;
     static uint16_t int14;
     static uint16_t int15;
-    static uint16_t int16;
 
     // 接收到地面站的EFI自定义消息转CAN
-    static uint16_t qgc_read1;
-    static uint16_t qgc_read2;
-    static uint16_t qgc_read3;
-    static uint16_t qgc_read4;
-    static uint16_t qgc_read5;
-    static uint16_t qgc_read6;
-    static uint16_t qgc_read7;
-    static uint16_t qgc_read8;
+    // static uint16_t qgc_read1;
+    // static uint16_t qgc_read2;
+    // static uint16_t qgc_read3;
+    // static uint16_t qgc_read4;
+    // static uint16_t qgc_read5;
+    // static uint16_t qgc_read6;
+    // static uint16_t qgc_read7;
+    // static uint16_t qgc_read8;
 
     // 向地面站发送CAN消息（esc_status）
-    static uint16_t qgc_send1;
-    static uint16_t qgc_send2;
-    static uint16_t qgc_send3;
-    static uint16_t qgc_send4;
-    static float qgc_send5;
-    static float qgc_send6;
-    static float qgc_send7;
-    static float qgc_send8;
-    static float qgc_send9;
-    static float qgc_send10;
-    static float qgc_send11;
-    static float qgc_send12;
+    // static uint16_t qgc_send1;
+    // static uint16_t qgc_send2;
+    // static uint16_t qgc_send3;
+    // static uint16_t qgc_send4;
+    // static float qgc_send5;
+    // static float qgc_send6;
+    // static float qgc_send7;
+    // static float qgc_send8;
+    // static float qgc_send9;
+    // static float qgc_send10;
+    // static float qgc_send11;
+    // static float qgc_send12;
 
     static uint16_t CAN_HZ; // CAN帧率
 };
