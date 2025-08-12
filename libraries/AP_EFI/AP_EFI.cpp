@@ -299,19 +299,19 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         chan,
         AP_EFI::is_healthy(),
         state.ecu_index,
-        (AP_KDECANUSE::int6),
+        (AP_KDECANUSE::int7),
         (AP_KDECANUSE::int2),
-        (AP_KDECANUSE::int3),
-        (AP_KDECANUSE::int4),
+        state.fuel_consumption_rate_cm3pm, 
+        (AP_KDECANUSE::int3), //涡轮
         (AP_KDECANUSE::int5),
         (AP_KDECANUSE::int1),
-        (AP_KDECANUSE::int7),
+        (AP_KDECANUSE::int4)/10, // 滑油压力
         state.intake_manifold_pressure_kpa,
-        KELVIN_TO_C(state.intake_manifold_temperature),
-        KELVIN_TO_C(state.cylinder_status.cylinder_head_temperature),
+        (AP_KDECANUSE::int6), // 油温
+        (AP_KDECANUSE::int7), // 缸头温度
         state.cylinder_status.ignition_timing_deg,
         state.cylinder_status.injection_time_ms,
-        KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature),
+        (AP_KDECANUSE::int5), // 水温
         state.throttle_out,
         state.pt_compensation,
         0,
