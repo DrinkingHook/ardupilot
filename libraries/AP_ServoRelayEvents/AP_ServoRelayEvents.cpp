@@ -67,6 +67,7 @@ bool AP_ServoRelayEvents::do_set_servo(uint8_t _channel, uint16_t pwm)
 }
 
 #if AP_RELAY_ENABLED
+// 执行启动继电器
 bool AP_ServoRelayEvents::do_set_relay(uint8_t relay_num, uint8_t state)
 {
     AP_Relay *relay = AP::relay();

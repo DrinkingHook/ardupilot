@@ -253,6 +253,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK_CLASS(AP_Scheduler, &copter.scheduler, update_logging, 0.1, 75, 126),
 #endif
 #if AP_RPM_ENABLED
+    // RPM转速检测任务
     SCHED_TASK_CLASS(AP_RPM, &copter.rpm_sensor, update, 40, 200, 129),
 #endif
 #if AP_TEMPCALIBRATION_ENABLED
@@ -268,6 +269,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK(terrain_update, 10, 100, 144),
 #endif
 #if AP_WINCH_ENABLED
+    // 绞盘控制任务
     SCHED_TASK_CLASS(AP_Winch, &copter.g2.winch, update, 50, 50, 150),
 #endif
 #ifdef USERHOOK_FASTLOOP

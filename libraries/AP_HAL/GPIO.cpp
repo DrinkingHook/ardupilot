@@ -10,6 +10,7 @@ AP_HAL::PWMSource::~PWMSource()
 {
     if (interrupt_attached) {
         // Assume this is always successful
+        // 翻译：假设这总是成功的
         hal.gpio->detach_interrupt(_pin);
         interrupt_attached = false;
     }

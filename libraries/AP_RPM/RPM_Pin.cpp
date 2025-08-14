@@ -29,6 +29,7 @@ AP_RPM_Pin::IrqState AP_RPM_Pin::irq_state[RPM_MAX_INSTANCES];
 
 /*
   handle interrupt on an instance
+  翻译：处理实例上的中断
  */
 void AP_RPM_Pin::irq_handler(uint8_t pin, bool pin_state, uint32_t timestamp)
 {
@@ -37,6 +38,7 @@ void AP_RPM_Pin::irq_handler(uint8_t pin, bool pin_state, uint32_t timestamp)
     // we don't accept pulses less than 100us. Using an irq for such
     // high RPM is too inaccurate, and it is probably just bounce of
     // the signal which we should ignore
+    // 翻译：我们不接受小于100us的脉冲。使用irq进行如此高的RPM是不准确的，它可能只是信号的弹跳，我们应该忽略它
     if (dt > 100 && dt < 1000*1000) {
         irq_state[state.instance].dt_sum += dt;
         irq_state[state.instance].dt_count++;
@@ -49,15 +51,20 @@ void AP_RPM_Pin::update(void)
         // detach from last pin
         if (interrupt_attached) {
             // ignore this failure of the user may be stuck
+            // 翻译：如果用户可能被卡住，则忽略此失败
             IGNORE_RETURN(hal.gpio->detach_interrupt(last_pin));
             interrupt_attached = false;
         }
         irq_state[state.instance].dt_count = 0;
         irq_state[state.instance].dt_sum = 0;
         // attach to new pin
+        // 翻译：附加到新引脚
         last_pin = get_pin();
         if (last_pin > 0) {
+            // set pin mode to input
             hal.gpio->pinMode(last_pin, HAL_GPIO_INPUT);
+            // attach interrupt handler
+            // Let it detect rising edge signal
             if (hal.gpio->attach_interrupt(
                     last_pin,
                     FUNCTOR_BIND_MEMBER(&AP_RPM_Pin::irq_handler, void, uint8_t, bool, uint32_t),
@@ -72,6 +79,7 @@ void AP_RPM_Pin::update(void)
     if (irq_state[state.instance].dt_count > 0) {
 
         // disable interrupts to prevent race with irq_handler
+        // 翻译：禁用中断以防止与irq_handler的竞争
         void *irqstate = hal.scheduler->disable_interrupts_save();
         const float dt_avg = static_cast<float>(irq_state[state.instance].dt_sum) / irq_state[state.instance].dt_count;
         irq_state[state.instance].dt_count = 0;

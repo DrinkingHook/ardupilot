@@ -27,6 +27,7 @@ void Copter::auto_disarm_check()
     }
 
     // always allow auto disarm if using interlock switch or motors are Emergency Stopped
+    // 翻译：如果使用互锁开关或电动机处于紧急停止状态，则始终允许自动解除武装
     if ((ap.using_interlock && !motors->get_interlock()) || SRV_Channels::get_emergency_stop()) {
 #if FRAME_CONFIG != HELI_FRAME
         // use a shorter delay if using throttle interlock switch or Emergency Stop, because it is less
@@ -96,7 +97,10 @@ void Copter::motors_output(bool full_push)
     SRV_Channels::output_ch_all();
 
     // update motors interlock state
+    // 翻译：更新电动机互锁状态
+    // 只有电机已解锁、没有武装延迟、互锁条件满足且没有紧急停止时，interlock才为 true
     bool interlock = motors->armed() && !ap.in_arming_delay && (!ap.using_interlock || ap.motor_interlock_switch) && !SRV_Channels::get_emergency_stop();
+    // 当电机互锁未使能时，并且 interlock 为 true 时，则使能电机互锁
     if (!motors->get_interlock() && interlock) {
         motors->set_interlock(true);
         LOGGER_WRITE_EVENT(LogEvent::MOTORS_INTERLOCK_ENABLED);

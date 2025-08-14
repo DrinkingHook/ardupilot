@@ -206,6 +206,7 @@ void AP_RPM::convert_params(void)
 
 /*
   update RPM state for all instances. This should be called by main loop
+  翻译：更新所有实例的RPM状态。应该在主循环中调用。
  */
 void AP_RPM::update(void)
 {
