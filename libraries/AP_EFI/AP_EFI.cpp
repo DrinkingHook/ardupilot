@@ -314,7 +314,7 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         (AP_KDECANUSE::int3), //涡轮
         (AP_KDECANUSE::int5),
         (AP_KDECANUSE::int1),
-        (AP_KDECANUSE::int4)/10, // 滑油压力
+        static_cast<float>(AP_KDECANUSE::int4) / 10.0f, // 滑油压力
         state.intake_manifold_pressure_kpa,
         (AP_KDECANUSE::int6), // 油温
         (AP_KDECANUSE::int7), // 缸头温度
