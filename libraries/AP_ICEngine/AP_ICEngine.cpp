@@ -190,6 +190,7 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
 };
 
 // constructor
+// 构造函数
 AP_ICEngine::AP_ICEngine()
 {
     AP_Param::setup_object_defaults(this, var_info);
@@ -225,10 +226,12 @@ void AP_ICEngine::param_conversion()
 {
     if (!enable || (param_format_version == 1)) {
         // not enabled or conversion has already been done
+        // 未启用或者转换已经完成
         return;
     }
 
     // Set format version so the conversion is not done again
+    // 翻译：设置格式版本，以便不再进行转换
     param_format_version.set_and_save(1);
 
     AP_Param::ConversionInfo info;
@@ -281,6 +284,7 @@ void AP_ICEngine::param_conversion()
 }
 
 // Handle incoming aux function
+// 翻译：处理传入的辅助功能
 void AP_ICEngine::do_aux_function(const RC_Channel::AuxFuncTrigger &trigger)
 {
     // If triggered from RC apply start chan min
@@ -360,6 +364,7 @@ void AP_ICEngine::update(void)
     }
 
     // switch on current state to work out new state
+    // 翻译：根据当前状态切换以确定新状态
     switch (state) {
     case ICE_DISABLED:
         return;
@@ -585,6 +590,7 @@ bool AP_ICEngine::throttle_override(float &percentage, const float base_throttle
 
 /*
   handle DO_ENGINE_CONTROL messages via MAVLink or mission
+  翻译：通过MAVLink或mission处理DO_ENGINE_CONTROL消息
 */
 bool AP_ICEngine::engine_control(float start_control, float cold_start, float height_delay, uint32_t flags)
 {
@@ -698,6 +704,7 @@ void AP_ICEngine::update_idle_governor(int8_t &min_throttle)
 
 /*
   set ignition state
+  翻译：设置点火状态
  */
 void AP_ICEngine::set_ignition(bool on)
 {
@@ -714,6 +721,7 @@ void AP_ICEngine::set_ignition(bool on)
 
 /*
   set starter state
+  翻译：设置起动机状态
  */
 void AP_ICEngine::set_starter(bool on)
 {

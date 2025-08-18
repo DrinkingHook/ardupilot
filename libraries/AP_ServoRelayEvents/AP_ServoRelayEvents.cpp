@@ -153,9 +153,9 @@ bool AP_ServoRelayEvents::do_repeat_relay(uint8_t relay_num, int16_t _repeat, ui
 }
 #endif
 
-
 /*
   update state for MAV_CMD_DO_REPEAT_SERVO and MAV_CMD_DO_REPEAT_RELAY
+  通过调用do_repeat_relay等函数，进而再调用update_events来更改继电器状态
 */
 void AP_ServoRelayEvents::update_events(void)
 {

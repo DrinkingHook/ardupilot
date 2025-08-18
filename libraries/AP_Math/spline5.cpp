@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 #include "spline5.h"
-
+// https://en.wikipedia.org/wiki/Spline_(mathematics)样条插值
 void splinterp5(const float x[5], float out[4][4])
 {
 

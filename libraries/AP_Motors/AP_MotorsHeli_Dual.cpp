@@ -232,6 +232,7 @@ void AP_MotorsHeli_Dual::init_outputs()
 }
 
 // calculate_armed_scalars
+// 翻译：计算已武装的标量
 void AP_MotorsHeli_Dual::calculate_armed_scalars()
 {
     // Set rsc mode specific parameters
@@ -407,6 +408,7 @@ void AP_MotorsHeli_Dual::mix_intermeshing(float pitch_input, float roll_input, f
 void AP_MotorsHeli_Dual::update_motor_control(AP_MotorsHeli_RSC::RotorControlState state)
 {
     // Send state update to motors
+    // 翻译：将命令发送到电动机
     _main_rotor.output(state);
 
     if (state == AP_MotorsHeli_RSC::RotorControlState::STOP)

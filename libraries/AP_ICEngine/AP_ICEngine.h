@@ -51,10 +51,15 @@ public:
 
     enum ICE_State {
         ICE_DISABLED = -1,
+        // 翻译：引擎关闭
         ICE_OFF=0,
+        // 翻译：引擎启动高度延迟
         ICE_START_HEIGHT_DELAY=1,
+        // 翻译：引擎启动延迟
         ICE_START_DELAY=2,
+        // 翻译：引擎正在启动
         ICE_STARTING=3,
+        // 翻译：引擎正在运行
         ICE_RUNNING=4
     };
 

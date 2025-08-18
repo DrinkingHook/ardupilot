@@ -35,8 +35,11 @@ public:
     // rotor controller states
     enum class RotorControlState {
         STOP = 0,
+        // 停止
         IDLE,
+        // 怠速
         ACTIVE
+        // 运行
     };
 
     // init_servo - servo initialization on start-up

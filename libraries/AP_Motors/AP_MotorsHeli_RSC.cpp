@@ -236,23 +236,30 @@ void AP_MotorsHeli_RSC::init_servo()
 }
 
 // set_power_output_range
+// 翻译：设置功率输出范围
 // TODO: Look at possibly calling this at a slower rate.  Doesn't need to be called every cycle.
+// 翻译：TODO：考虑可能以较慢的速率调用此函数。每个周期不需要调用。
 void AP_MotorsHeli_RSC::set_throttle_curve()
 {
     float thrcrv[5];
     // Ensure user inputs are within parameter limits
+    // 翻译：确保用户输入在参数限制范围内
     // Scale throttle curve parameters
+    // 比例节气门曲线参数
     for (uint8_t i = 0; i < 5; i++) {
         thrcrv[i] = constrain_float(_thrcrv[i] * 0.01f, 0.0f, 1.0f);
     }
     // Calculate the spline polynomials for the throttle curve
+    // 样条插值曲线计算
     splinterp5(thrcrv,_thrcrv_poly);
 }
 
 // output - update value to send to ESC/Servo
+// 输出 - 更新值以发送到ESC/伺服
 void AP_MotorsHeli_RSC::output(RotorControlState state)
 {
     // Store rsc state for logging
+    // 翻译：存储rsc状态以进行记录
     _rsc_state = state;
     // _rotor_RPM available to the RSC output
 #if AP_RPM_ENABLED
@@ -313,11 +320,13 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         update_rotor_ramp(0.0f, dt);
 
         // set rotor control speed to engine idle and ensure governor is reset, if used
+        // 翻译：将转子控制速度设置为发动机怠速并确保使用时复位调速器
         governor_reset();
         _autothrottle = false;
         _governor_fault = false;
 
         // turbine start sequence
+        // 翻译：涡轮启动序列
         if (_turbine_start && _starting == true ) {
             _idle_throttle += 0.001f;
             if (_control_output >= 1.0f) {
@@ -330,16 +339,20 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         }
 
         // all other idle throttle functions below this require idle throttle to be reset to H_RSC_IDLE on each call
+        // 翻译：所有其他怠速油门功能都需要在每次调用时将怠速油门重置为H_RSC_IDLE
         _idle_throttle = get_idle_output();
 
         // check if we need to use autorotation idle throttle
+        // 翻译：检查是否需要使用自动旋转怠速油门
         if (autorotation.get_idle_throttle(_idle_throttle)) {
             // if we are here then we are autorotating
+            // 翻译：如果我们在这里，那么我们正在自动旋转
             _control_output = _idle_throttle;
             break;
         }
 
         // check if we need to use engine cooldown
+        // 翻译：检查是否需要使用发动机冷却
         if (_fast_idle_timer > 0.0) {
             // running at fast idle for engine cool down
             _idle_throttle *= 1.5;
@@ -355,11 +368,13 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         update_rotor_ramp(1.0f, dt);
 
         // set fast idle timer so next time RSC goes to idle, the cooldown timer starts
+        // 翻译：设置快速怠速计时器，以便下次RSC进入怠速时，冷却计时器开始
         if (_cooldown_time.get() > 0) {
             _fast_idle_timer = _cooldown_time.get();
         }
 
         // ensure _idle_throttle not set to invalid value due to premature switch out of turbine start
+        // 翻译：确保_idle_throttle未设置为由于涡轮启动过早切换而导致的无效值
         if (_starting) {
             _idle_throttle = get_idle_output();
         }
@@ -512,20 +527,24 @@ float AP_MotorsHeli_RSC::calculate_throttlecurve(float collective_in)
 }
 
 // autothrottle_run - calculate throttle output for governor controlled throttle
+// 翻译：自动节流运行 - 计算用于控制节流的油门输出
 void AP_MotorsHeli_RSC::autothrottle_run()
 {
     float throttlecurve = calculate_throttlecurve(_collective_in);
     float const torque_ref_error_rpm = 2.0f;
 
     // if the desired governor RPM is zero, use the throttle curve only and exit
+    // 如果所需的调速器RPM为零，请仅使用油门曲线并退出
     if (_governor_rpm == 0) {
         _control_output = _idle_throttle + (_rotor_ramp_output * (throttlecurve - _idle_throttle));
         return;
     }
 
     // autothrottle main power loop with governor
+    // 翻译：自动油门主动力回路与调速器
     if (_governor_engage && !_governor_fault) {
         // calculate droop - difference between actual and desired speed
+        // 翻译：计算下垂 - 实际速度和期望速度之间的差异
         float governor_droop = ((float)_governor_rpm - _rotor_rpm) * _governor_droop_response * 0.0001f;
         _governor_output = governor_droop + ((throttlecurve - _governor_torque_reference) * _governor_ff * 0.01);
         if (_rotor_rpm < ((float)_governor_rpm - torque_ref_error_rpm)) {
@@ -534,10 +553,14 @@ void AP_MotorsHeli_RSC::autothrottle_run()
             _governor_torque_reference -= get_governor_compensator();
         }
         // throttle output uses droop + torque compensation to maintain proper rotor speed
+        // 翻译：节流输出使用下垂 + 扭矩补偿来保持适当的转子速度
         _control_output = constrain_float((_governor_torque_reference + _governor_output), (get_idle_output() * 1.5f), 1.0f);
         // governor and speed sensor fault detection - must maintain RPM within governor range
+        // 翻译：调速器和速度传感器故障检测 - 必须在调速器范围内保持RPM
         // speed fault detector will allow a fault to persist for 200 contiguous governor updates
+        // 翻译：速度故障检测器将允许故障在200个连续的调速器更新中持续存在
         // this is failsafe for bad speed sensor or severely mis-adjusted governor
+        // 翻译：这是针对速度传感器故障或严重调整不当的调速器的安全措施
         if ((_rotor_rpm <= (_governor_rpm - _governor_range)) || (_rotor_rpm >= (_governor_rpm + _governor_range))) {
             _governor_fault_count++;
             if (_governor_fault_count > 200) {
@@ -554,6 +577,7 @@ void AP_MotorsHeli_RSC::autothrottle_run()
         }
     } else if (!_governor_engage && !_governor_fault) {
         // if governor is not engaged and rotor is overspeeding by more than governor range due to 
+        // 如果电子调速器
         // misconfigured throttle curve or stuck throttle, set a fault and governor will not operate
         if (_rotor_rpm > (_governor_rpm + _governor_range) && !autorotation.bailing_out()) {
             _governor_fault = true;
