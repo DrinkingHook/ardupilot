@@ -320,6 +320,7 @@ void AP_MotorsHeli::output_disarmed()
 void AP_MotorsHeli::output_logic()
 {
     // force desired and current spool mode if disarmed and armed with interlock enabled
+    // 翻译：如果解除武装并且启用了互锁，则强制所需和当前的卷轴模式
     if (armed()) {
         if (!get_interlock()) {
             _spool_desired = DesiredSpoolState::GROUND_IDLE;
@@ -332,6 +333,7 @@ void AP_MotorsHeli::output_logic()
         _spool_state = SpoolState::SHUT_DOWN;
     }
 
+    // 启动时先从 SHUT_DOWN 状态开始，在状态机执行完成SHUT_DOWN 状态后，状态机会自动切换到 GROUND_IDLE 状态
     switch (_spool_state) {
         case SpoolState::SHUT_DOWN:
             // Motors should be stationary.
@@ -345,6 +347,7 @@ void AP_MotorsHeli::output_logic()
             }
 
             // make sure the motors are spooling in the correct direction
+            // 翻译：确保电动机以正确的方向旋转
             if (_spool_desired != DesiredSpoolState::SHUT_DOWN) {
                 _spool_state = SpoolState::GROUND_IDLE;
                 break;

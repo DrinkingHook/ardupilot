@@ -436,9 +436,11 @@ void AP_MotorsHeli_RSC::update_rotor_runup(float dt)
 {
     float runup_time = _runup_time;
     // sanity check runup time
+    // 翻译：运行时间的健全性检查
     runup_time = MAX(_ramp_time+1,runup_time);
 
     // adjust rotor runup when in autorotation or bailing out
+    // 翻译：在自动旋转或撤退时调整转子运行
     if (in_autorotation()) {
         runup_time = autorotation.get_runup_time();
     }
@@ -468,16 +470,19 @@ void AP_MotorsHeli_RSC::update_rotor_runup(float dt)
     // update run-up complete flag
 
     // if control mode is disabled, then run-up complete always returns true
+    // 翻译：如果控制模式被禁用，则运行完成始终返回true
     if ( _control_mode == ROTOR_CONTROL_MODE_DISABLED ) {
         _runup_complete = true;
         return;
     }
 
     // if rotor ramp and runup are both at full speed, then run-up has been completed
+    // 翻译：如果转子斜坡和运行都处于全速状态，则运行已完成
     if (!_runup_complete && (_rotor_ramp_output >= 1.0f) && (_rotor_runup_output >= 1.0f)) {
         _runup_complete = true;
     }
     // if rotor speed is less than critical speed, then run-up is not complete
+    // 翻译：如果转子速度低于临界速度，则运行不完整
     // this will prevent the case where the target rotor speed is less than critical speed
     if (_runup_complete && !rotor_speed_above_critical()) {
         _runup_complete = false;

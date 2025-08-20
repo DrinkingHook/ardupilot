@@ -512,6 +512,7 @@ SRV_Channels::set_output_limit(SRV_Channel::Function function, SRV_Channel::Limi
 
 /*
   return true if a particular function is assigned to at least one RC channel
+  翻译：如果至少一个RC通道分配了特定功能，则返回true
  */
 bool
 SRV_Channels::function_assigned(SRV_Channel::Function function)
@@ -550,6 +551,7 @@ SRV_Channels::move_servo(SRV_Channel::Function function,
 
 /*
   set the default channel an auxiliary output function should be on
+  设置默认通道打开辅助输出功能
  */
 bool SRV_Channels::set_aux_channel_default(SRV_Channel::Function function, uint8_t channel)
 {
