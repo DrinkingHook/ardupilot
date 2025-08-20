@@ -168,6 +168,7 @@ public:
     virtual uint8_t     get_lost_motor() const { return 0; }
 
     // desired spool states
+    // 所需的线轴状态
     enum class DesiredSpoolState : uint8_t {
         SHUT_DOWN = 0,              // all motors should move to stop
         GROUND_IDLE = 1,            // all motors should move to ground idle
@@ -179,12 +180,14 @@ public:
     enum DesiredSpoolState get_desired_spool_state(void) const { return _spool_desired; }
 
     // spool states
+    // 线轴状态
     enum class SpoolState : uint8_t {
         SHUT_DOWN = 0,                      // all motors stop
-        GROUND_IDLE = 1,                    // all motors at ground idle
-        SPOOLING_UP = 2,                       // increasing maximum throttle while stabilizing
-        THROTTLE_UNLIMITED = 3,             // throttle is no longer constrained by start up procedure
-        SPOOLING_DOWN = 4,                     // decreasing maximum throttle while stabilizing
+        Pre-rotate = 1,                     // pre-rotating the main rotor
+        GROUND_IDLE = 2,                    // all motors at ground idle
+        SPOOLING_UP = 3,                       // increasing maximum throttle while stabilizing
+        THROTTLE_UNLIMITED = 4,             // throttle is no longer constrained by start up procedure
+        SPOOLING_DOWN = 5,                     // decreasing maximum throttle while stabilizing
     };
 
     // get_spool_state - get current spool state

@@ -325,7 +325,8 @@ void AP_MotorsHeli::output_logic()
     // force desired and current spool mode if disarmed and armed with interlock enabled
     if (armed()) {
         if (!get_interlock()) {
-            _spool_desired = DesiredSpoolState::GROUND_IDLE;
+            // _spool_desired = DesiredSpoolState::GROUND_IDLE;
+            _spool_desired = DesiredSpoolState::
         } else {
             _heliflags.init_targets_on_arming = false;
         }
