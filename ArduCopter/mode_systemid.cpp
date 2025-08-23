@@ -162,7 +162,7 @@ void ModeSystemId::run()
             set_land_complete(false);
         }
         break;
-
+    case AP_Motors::SpoolState::Pre_rotate:
     case AP_Motors::SpoolState::SPOOLING_UP:
     case AP_Motors::SpoolState::SPOOLING_DOWN:
         // do nothing

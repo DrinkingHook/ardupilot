@@ -536,7 +536,8 @@ void AP_MotorsMulticopter::output_logic()
         _thrust_boost = false;
         _thrust_boost_ratio = 0.0f;
         break;
-
+    case SpoolState::Pre_rotate:
+      break;
     case SpoolState::GROUND_IDLE: {
         // Motors should be stationary or at ground idle.
         // Servos should be moving to correct the current attitude.
@@ -586,6 +587,8 @@ void AP_MotorsMulticopter::output_logic()
             _spin_up_ratio += constrain_float(spin_up_armed_ratio - _spin_up_ratio, -spool_down_step, spool_up_step);
             break;
         }
+        case DesiredSpoolState::Pre_rotate:
+          break;
         }
         _throttle_thrust_max = 0.0f;
 
@@ -628,7 +631,7 @@ void AP_MotorsMulticopter::output_logic()
         _thrust_boost = false;
         _thrust_boost_ratio = MAX(0.0, _thrust_boost_ratio - spool_step);
         break;
-    }
+        }
 
     case SpoolState::THROTTLE_UNLIMITED: {
         const float spool_step = _dt / _spool_up_time;
@@ -695,6 +698,7 @@ void AP_MotorsMulticopter::output_logic()
 
         _thrust_boost_ratio = MAX(0.0, _thrust_boost_ratio - spool_step);
         break;
+
     }
 }
 

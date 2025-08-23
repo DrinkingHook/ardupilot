@@ -1,3 +1,4 @@
+#include "AP_Motors/AP_Motors_Class.h"
 #include "Copter.h"
 
 /*
@@ -596,6 +597,8 @@ void Mode::make_safe_ground_handling(bool force_throttle_unlimited)
     case AP_Motors::SpoolState::SPOOLING_DOWN:
         // while transitioning though active states continue to operate normally
         break;
+    case AP_Motors::SpoolState::Pre_rotate:
+      break;
     }
 
     pos_control->relax_velocity_controller_xy();

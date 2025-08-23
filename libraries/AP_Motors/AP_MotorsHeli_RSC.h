@@ -4,6 +4,7 @@
 #include <AP_Math/AP_Math.h>            // ArduPilot Mega Vector/Matrix math Library
 #include <RC_Channel/RC_Channel.h>
 #include <SRV_Channel/SRV_Channel.h>
+// #include "AP_MotorsHeli.h"
 
 // default main rotor speed (ch8 out) as a number from 0 ~ 100
 #define AP_MOTORS_HELI_RSC_SETPOINT             70
@@ -56,6 +57,7 @@ public:
     // rotor controller states
     enum class RotorControlState {
         STOP = 0,
+        Pre_rotate,
         IDLE,
         ACTIVE
     };
@@ -144,8 +146,9 @@ public:
     AP_Int16        _arot_idle_output;           // Percent value used when in autorotation
     AP_Int8         _rsc_arot_engage_time;    // time in seconds for in-flight power re-engagement
     AP_Int8         _rsc_arot_man_enable;     // enables manual autorotation
-
-private:
+    float _Pre_rotate_out;
+    float _control_output; // latest logic controlled output
+  private:
     uint64_t        _last_update_us;
 
     // channel setup for aux function
@@ -155,7 +158,7 @@ private:
     // internal variables
     RotorControlMode _control_mode = ROTOR_CONTROL_MODE_DISABLED;   // motor control mode, Passthrough or Setpoint
     float           _desired_speed;               // latest desired rotor speed from pilot
-    float           _control_output;              // latest logic controlled output
+
     float           _rotor_ramp_output;           // scalar used to ramp rotor speed between _rsc_idle_output and full speed (0.0-1.0f)
     float           _rotor_runup_output;          // scalar used to store status of rotor run-up time (0.0-1.0f)
     bool            _runup_complete;              // flag for determining if runup is complete
@@ -178,9 +181,12 @@ private:
     bool            _bailing_out;                 // flag that holds the status of bail out(power engagement)
     float           _idle_throttle;               // current idle throttle setting
     bool            _gov_bailing_out;             // flag that holds the status of governor bail out
+          
 
     // update_rotor_ramp - slews rotor output scalar between 0 and 1, outputs float scalar to _rotor_ramp_output
     void            update_rotor_ramp(float rotor_ramp_input, float dt);
+
+    void            update_pre_rotor_runup(float pre_rotor_ramp_input, float dt);
 
     // update_rotor_runup - function to slew rotor runup scalar, outputs float scalar to _rotor_runup_ouptut
     void            update_rotor_runup(float dt);

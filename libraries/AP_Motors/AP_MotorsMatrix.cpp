@@ -172,6 +172,8 @@ void AP_MotorsMatrix::output_to_motors()
                 }
             }
             break;
+        case SpoolState::Pre_rotate:
+          break;
     }
 
     // convert output to PWM and send to each motor

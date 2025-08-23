@@ -18,6 +18,7 @@
 #include <GCS_MAVLink/GCS.h>
 #include "AP_MotorsHeli_RSC.h"
 #include <AP_RPM/AP_RPM.h>
+// #include <SRV_Channel/SRV_Channel.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -281,7 +282,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
 
         // control output forced to zero
         _control_output = 0.0f;
-
+        _Pre_rotate_out = 0.0f;
         // governor is forced to disengage status and reset outputs
         governor_reset();
         _autothrottle = false;
@@ -291,11 +292,16 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         _autorotating = false;
         _bailing_out = false;
         _gov_bailing_out = false;
-
+        SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate, 1000);
         // ensure _idle_throttle not set to invalid value
         _idle_throttle = get_idle_output();
         break;
-
+    case RotorControlState::Pre_rotate:
+      update_pre_rotor_runup(1.0f, dt);
+    //   _heliflags.Pre_rotate_finshed = true;
+      SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate,
+                                   1000 + _Pre_rotate_out * 1000);
+      break;
     case RotorControlState::IDLE:
         // set rotor ramp to decrease speed to zero
         update_rotor_ramp(0.0f, dt);
@@ -349,6 +355,8 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         break;
 
     case RotorControlState::ACTIVE:
+        _Pre_rotate_out = 0.0f;
+        SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate, 1000);
         // set main rotor ramp to increase to full speed
         update_rotor_ramp(1.0f, dt);
 
@@ -384,6 +392,47 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
 
     // output to rsc servo
     write_rsc(_control_output);
+}
+void AP_MotorsHeli_RSC::update_pre_rotor_runup(float pre_rotor_ramp_input, float dt)
+{
+    int8_t ramp_time;
+    int8_t bailout_time;
+    // sanity check ramp time and enable bailout if set
+    if (_ramp_time <= 0) {
+    ramp_time = 1;
+    } else {
+    ramp_time = _ramp_time;
+    }
+
+    if (_rsc_arot_engage_time <= 0) {
+    bailout_time = 1;
+    } else {
+    bailout_time = _rsc_arot_engage_time;
+    }
+
+    // ramp output upwards towards target
+    if (_Pre_rotate_out < pre_rotor_ramp_input) {
+      if (_use_bailout_ramp) {
+        if (!_bailing_out) {
+        GCS_SEND_TEXT(MAV_SEVERITY_CRITICAL, "bailing_out");
+        _bailing_out = true;
+        if (_control_mode == ROTOR_CONTROL_MODE_AUTOTHROTTLE) {
+            _gov_bailing_out = true;
+        }
+        }
+        _Pre_rotate_out += (dt / bailout_time);
+    } else {
+      _Pre_rotate_out += (dt / ramp_time);
+    }
+    if (_Pre_rotate_out > pre_rotor_ramp_input) {
+      _Pre_rotate_out = pre_rotor_ramp_input;
+      _bailing_out = false;
+      _use_bailout_ramp = false;
+    }
+    } else {
+      // ramping down happens instantly
+      _Pre_rotate_out = pre_rotor_ramp_input;
+    }
 }
 
 // update_rotor_ramp - slews rotor output scalar between 0 and 1, outputs float scalar to _rotor_ramp_output

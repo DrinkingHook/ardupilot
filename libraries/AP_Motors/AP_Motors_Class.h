@@ -171,8 +171,9 @@ public:
     // 所需的线轴状态
     enum class DesiredSpoolState : uint8_t {
         SHUT_DOWN = 0,              // all motors should move to stop
-        GROUND_IDLE = 1,            // all motors should move to ground idle
-        THROTTLE_UNLIMITED = 2,     // motors should move to being a state where throttle is unconstrained (e.g. by start up procedure)
+        Pre_rotate = 1,          // all motors should move to pre-rotation state
+        GROUND_IDLE = 2,            // all motors should move to ground idle
+        THROTTLE_UNLIMITED = 3,     // motors should move to being a state where throttle is unconstrained (e.g. by start up procedure)
     };
 
     void set_desired_spool_state(enum DesiredSpoolState spool);
@@ -182,12 +183,12 @@ public:
     // spool states
     // 线轴状态
     enum class SpoolState : uint8_t {
-        SHUT_DOWN = 0,                      // all motors stop
-        Pre-rotate = 1,                     // pre-rotating the main rotor
-        GROUND_IDLE = 2,                    // all motors at ground idle
-        SPOOLING_UP = 3,                       // increasing maximum throttle while stabilizing
-        THROTTLE_UNLIMITED = 4,             // throttle is no longer constrained by start up procedure
-        SPOOLING_DOWN = 5,                     // decreasing maximum throttle while stabilizing
+      SHUT_DOWN = 0, // all motors stop
+      Pre_rotate = 1,
+      GROUND_IDLE = 2, // all motors at ground idle
+      SPOOLING_UP = 3, // increasing maximum throttle while stabilizing
+      THROTTLE_UNLIMITED = 4, // throttle is no longer constrained by start up procedure
+      SPOOLING_DOWN = 5, // decreasing maximum throttle while stabilizing
     };
 
     // get_spool_state - get current spool state
