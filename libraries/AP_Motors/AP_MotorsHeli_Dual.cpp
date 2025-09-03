@@ -301,43 +301,43 @@ void AP_MotorsHeli_Dual::calculate_scalars()
     calculate_armed_scalars();
 }
 
-// Mix and output swashplates for tandem
-void AP_MotorsHeli_Dual::mix_tandem(float pitch_input, float roll_input, float yaw_input, float collective1_input, float collective2_input)
-{
-    // Differential cyclic roll is used for yaw and combined for roll
-    const float swash1_roll = roll_input + _yaw_scaler * yaw_input;
-    const float swash2_roll = roll_input - _yaw_scaler * yaw_input;
+// // Mix and output swashplates for tandem
+// void AP_MotorsHeli_Dual::mix_tandem(float pitch_input, float roll_input, float yaw_input, float collective1_input, float collective2_input)
+// {
+//     // Differential cyclic roll is used for yaw and combined for roll
+//     const float swash1_roll = roll_input + _yaw_scaler * yaw_input;
+//     const float swash2_roll = roll_input - _yaw_scaler * yaw_input;
 
-    // cyclic is not used for pitch control
-    const float swash_pitch = 0.0;
+//     // cyclic is not used for pitch control
+//     const float swash_pitch = 0.0;
 
-    // Differential collective for pitch and combined for thrust
-    const float swash1_coll = 0.45 * _dcp_scaler * (pitch_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective1_input;
-    const float swash2_coll = -0.45 * _dcp_scaler * (pitch_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective2_input;
+//     // Differential collective for pitch and combined for thrust
+//     const float swash1_coll = 0.45 * _dcp_scaler * (pitch_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective1_input;
+//     const float swash2_coll = -0.45 * _dcp_scaler * (pitch_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective2_input;
 
-    // Calculate servo positions in swashplate library
-    _swashplate1.calculate(swash1_roll, swash_pitch, swash1_coll);
-    _swashplate2.calculate(swash2_roll, swash_pitch, swash2_coll);
-}
+//     // Calculate servo positions in swashplate library
+//     _swashplate1.calculate(swash1_roll, swash_pitch, swash1_coll);
+//     _swashplate2.calculate(swash2_roll, swash_pitch, swash2_coll);
+// }
 
-// Mix and output swashplates for transverse
-void AP_MotorsHeli_Dual::mix_transverse(float pitch_input, float roll_input, float yaw_input, float collective1_input, float collective2_input)
-{
-    // cyclic is not used for roll control
-    const float swash_roll = 0.0;
+// // Mix and output swashplates for transverse
+// void AP_MotorsHeli_Dual::mix_transverse(float pitch_input, float roll_input, float yaw_input, float collective1_input, float collective2_input)
+// {
+//     // cyclic is not used for roll control
+//     const float swash_roll = 0.0;
 
-    // Differential cyclic pitch is used for yaw
-    const float swash1_pitch = pitch_input - _yaw_scaler * yaw_input;
-    const float swash2_pitch = pitch_input + _yaw_scaler * yaw_input;
+//     // Differential cyclic pitch is used for yaw
+//     const float swash1_pitch = pitch_input - _yaw_scaler * yaw_input;
+//     const float swash2_pitch = pitch_input + _yaw_scaler * yaw_input;
 
-    // Differential collective for roll and combined for thrust
-    const float swash1_coll = 0.45 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective1_input;
-    const float swash2_coll = -0.45 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective2_input;
+//     // Differential collective for roll and combined for thrust
+//     const float swash1_coll = 0.45 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective1_input;
+//     const float swash2_coll = -0.45 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective2_input;
 
-    // Calculate servo positions in swashplate library
-    _swashplate1.calculate(swash_roll, swash1_pitch, swash1_coll);
-    _swashplate2.calculate(swash_roll, swash2_pitch, swash2_coll);
-}
+//     // Calculate servo positions in swashplate library
+//     _swashplate1.calculate(swash_roll, swash1_pitch, swash1_coll);
+//     _swashplate2.calculate(swash_roll, swash2_pitch, swash2_coll);
+// }
 
 // Mix and output swashplates for intermeshing
 void AP_MotorsHeli_Dual::mix_intermeshing(float pitch_input, float roll_input, float yaw_input, float collective1_input, float collective2_input)
@@ -370,8 +370,8 @@ void AP_MotorsHeli_Dual::mix_intermeshing(float pitch_input, float roll_input, f
     // const float swash1_coll = 0.45 * _dcp_scaler * yaw_input + collective1_input + 1 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.4, 0.4));
     // const float swash2_coll = -0.45 * _dcp_scaler * yaw_input + collective2_input - 1 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.4, 0.4));
     // Differential collective for yaw and combined for thrust
-    const float swash1_coll = -0.5 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective1_input + 0.6 * _dcp_scaler * (yaw_input + constrain_float(_dcp_trim, -0.2, 0.2));
-    const float swash2_coll = 0.5 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective2_input - 0.6 * _dcp_scaler * (yaw_input + constrain_float(_dcp_trim, -0.2, 0.2));
+    const float swash1_coll = -0.6 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective1_input + 0.4 * _dcp_scaler * (yaw_input + constrain_float(_dcp_trim, -0.2, 0.2));
+    const float swash2_coll = 0.6 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective2_input - 0.4 * _dcp_scaler * (yaw_input + constrain_float(_dcp_trim, -0.2, 0.2));
 
     // Calculate servo positions in swashplate library
     //
@@ -484,10 +484,10 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
 
     // Set rear collective to midpoint if required
     float collective2_out = collective_out;
-    if (_servo_mode == SERVO_CONTROL_MODE_MANUAL_CENTER)
-    {
-        collective2_out = _collective2_zero_thrst_pct;
-    }
+    // if (_servo_mode == SERVO_CONTROL_MODE_MANUAL_CENTER)
+    // {
+    //     collective2_out = _collective2_zero_thrst_pct;
+    // }
 
     // if servo output not in manual mode, process pre-compensation factors
     // 翻译：如果伺服输出不在手动模式下，则处理预补偿因子
