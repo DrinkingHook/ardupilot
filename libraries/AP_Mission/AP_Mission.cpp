@@ -310,6 +310,7 @@ void AP_Mission::truncate(uint16_t index)
 void AP_Mission::update()
 {
     // exit immediately if not running or no mission commands
+    // 翻译：如果没有运行或者没有任务命令则立即退出
     if (_flags.state != MISSION_RUNNING || _cmd_total == 0) {
         return;
     }
@@ -317,24 +318,30 @@ void AP_Mission::update()
     update_exit_position();
 
     // mission_change events
+    // 翻译:任务切换事件
     if (_last_change_time_prev_ms != _last_change_time_ms) {
         _last_change_time_prev_ms = _last_change_time_ms;
         on_mission_timestamp_change();
     }
 
     // save persistent waypoint_num for watchdog restore
+    // 翻译：保存持久的 航点数量 以用于看门狗恢复
     hal.util->persistent_data.waypoint_num = _nav_cmd.index;
 
     // check if we have an active nav command
+    // 检查我们是否有活跃的导航命令
     if (!_flags.nav_cmd_loaded || _nav_cmd.index == AP_MISSION_CMD_INDEX_NONE) {
         // advance in mission if no active nav command
+        // 翻译：如果我们没有活跃的导航命令，那么任务继续
         if (!advance_current_nav_cmd()) {
             // failure to advance nav command means mission has completed
+            // 翻译：如果继续导航任务失败那么意味着任务已经完成
             complete();
             return;
         }
     } else {
         // run the active nav command
+        // 翻译：运行活跃的导航命令
         if (verify_command(_nav_cmd)) {
             // market _nav_cmd as complete (it will be started on the next iteration)
             _flags.nav_cmd_loaded = false;
@@ -348,18 +355,22 @@ void AP_Mission::update()
     }
 
     // check if we have an active do command
+    // 翻译：检查我们是否还有活跃的do命令
     if (!_flags.do_cmd_loaded) {
         advance_current_do_cmd();
     } else {
         // check the active do command
+        // 翻译：检查活跃的do命令
         if (verify_command(_do_cmd)) {
             // mark _do_cmd as complete
+            // 标记 _do_cmd 已经完成
             _flags.do_cmd_loaded = false;
         }
     }
 }
 
 // handle events for when the mission has been updated (but maybe not changed)
+// 翻译：处理任务更新时的事件（但是可能什么都没改变）
 void AP_Mission::on_mission_timestamp_change()
 {
     _jump_tag.age = 0;
@@ -372,11 +383,15 @@ bool AP_Mission::verify_command(const Mission_Command& cmd)
 #if AP_GRIPPER_ENABLED
     case MAV_CMD_DO_GRIPPER:
 #endif
+    // 设置指定伺服通道的 PWM 输出到一个具体的脉宽值
     case MAV_CMD_DO_SET_SERVO:
     case MAV_CMD_DO_SET_RELAY:
+    // 设置指定伺服通道以特定的 PWM 值重复动作，指定重复次数和每次动作的延迟时间。
     case MAV_CMD_DO_REPEAT_SERVO:
     case MAV_CMD_DO_REPEAT_RELAY:
+    // 配置数码相机
     case MAV_CMD_DO_DIGICAM_CONFIGURE:
+    // 控制数码相机
     case MAV_CMD_DO_DIGICAM_CONTROL:
     case MAV_CMD_DO_SET_CAM_TRIGG_DIST:
     case MAV_CMD_DO_PARACHUTE:

@@ -975,15 +975,21 @@ bool AC_PosControl::is_active_U() const
 }
 
 /// update_U_controller - runs the vertical position controller correcting position, velocity and acceleration errors.
+/// 翻译：运行垂直位置控制器校正位置速度和加速度错误
 ///     Position and velocity errors are converted to velocity and acceleration targets using PID objects
+///     翻译：使用pid对象将位置和速度错误转换为速度和加速度目标
 ///     Desired velocity and accelerations are added to these corrections as they are calculated
+///     翻译：在计算时将所需的速度和加速度添加到这些校准中
 ///     Kinematically consistent target position and desired velocity and accelerations should be provided before calling this function
+///     翻译：再调用此函数前应提供运动学上的唯一目标位置和所需的速度和加速度
 void AC_PosControl::update_U_controller()
 {
     // check for ekf z-axis position reset
+    // 检查ekf z轴位置是否重置
     handle_ekf_U_reset();
 
     // Check for z_controller time out
+    // 检查z轴控制器是否超时
     if (!is_active_U()) {
         init_U_controller();
         if (has_good_timing()) {
@@ -994,11 +1000,14 @@ void AC_PosControl::update_U_controller()
     _last_update_u_ticks = AP::scheduler().ticks32();
 
     // update the position, velocity and acceleration offsets
+    // 翻译：更新位置，速度和加速度偏差
     update_offsets_U();
+    // 翻译：根新地形使用的垂直偏差
     update_terrain();
     _pos_target_neu_cm.z = _pos_desired_neu_cm.z + _pos_offset_neu_cm.z + _pos_terrain_u_cm;
 
     // calculate the target velocity correction
+    // 翻译：计算目标速度校正
     float pos_target_zf = _pos_target_neu_cm.z;
 
     _vel_target_neu_cms.z = _p_pos_u.update_all(pos_target_zf, _pos_estimate_neu_cm.z);

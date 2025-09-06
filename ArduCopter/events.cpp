@@ -258,11 +258,13 @@ void Copter::failsafe_terrain_check()
 }
 
 // set terrain data status (found or not found)
+// 翻译：设置地形数据状态（发现或者未发现）
 void Copter::failsafe_terrain_set_status(bool data_ok)
 {
     uint32_t now = millis();
 
     // record time of first and latest failures (i.e. duration of failures)
+    // 翻译：记录第一次和最后一次失败的时间（及失败的持续时间）
     if (!data_ok) {
         failsafe.terrain_last_failure_ms = now;
         if (failsafe.terrain_first_failure_ms == 0) {
@@ -270,6 +272,7 @@ void Copter::failsafe_terrain_set_status(bool data_ok)
         }
     } else {
         // failures cleared after 0.1 seconds of persistent successes
+        // 翻译：持续成功0.1秒后清理失败
         if (now - failsafe.terrain_last_failure_ms > 100) {
             failsafe.terrain_last_failure_ms = 0;
             failsafe.terrain_first_failure_ms = 0;

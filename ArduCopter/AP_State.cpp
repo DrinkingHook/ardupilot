@@ -59,6 +59,7 @@ void Copter::set_failsafe_radio(bool b)
             failsafe_radio_off_event();
         }else{
             // We've lost radio contact
+            // 翻译我们已经失去了遥控器连接
             // ------------------------
             failsafe_radio_on_event();
         }

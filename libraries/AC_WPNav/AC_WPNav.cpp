@@ -146,15 +146,20 @@ AC_WPNav::TerrainSource AC_WPNav::get_terrain_source() const
 
 ///
 /// waypoint navigation
+/// 翻译：航点导航
 ///
 
 /// wp_and_spline_init_cm - initialise straight line and spline waypoint controllers
-///     speed_cms should be a positive value or left at zero to use the default speed
-///     stopping_point_ne_cm should be the vehicle's stopping point (equal to the starting point of the next segment) if know or left as zero
-///     should be called once before the waypoint controller is used but does not need to be called before subsequent updates to destination_neu_cm
+/// 翻译：WP_AND_SPLINE_INIT_CM-初始直线和样条路线控制器
+/// speed_cms should be a positive value or left at zero to use the default speed
+/// 翻译：speed_cms应该是一个正值，或者以零为零以使用默认速度
+/// stopping_point_ne_cm should be the vehicle's stopping point (equal to the starting point of the next segment) if know or left as zero
+/// 翻译：如果已知或保留为零，stopping_point_ne_cm 应该是车辆的停止点（等于下一个路段的起点）
+/// should be called once before the waypoint controller is used but does not need to be called before subsequent updates to destination_neu_cm
 void AC_WPNav::wp_and_spline_init_cm(float speed_cms, Vector3f stopping_point_ne_cm)
 {    
     // check _wp_radius_cm is reasonable
+    // 翻译：检查_wp_radius_cm是合理的
     _wp_radius_cm.set_and_save_ifchanged(MAX(_wp_radius_cm, WPNAV_WP_RADIUS_MIN_CM));
 
     // check _wp_speed
@@ -590,9 +595,11 @@ float AC_WPNav::get_wp_bearing_to_destination_rad() const
 }
 
 /// update_wpnav - run the wp controller - should be called at 100hz or higher
+/// update_wpnav - 运行wp控制器 - 应该以100hz或者更高被调用
 bool AC_WPNav::update_wpnav()
 {
     // check for changes in speed parameter values
+    // 翻译：检查速度参数值的变化
     if (_check_wp_speed_change) {
         if (!is_equal(_wp_speed_cms.get(), _last_wp_speed_cms)) {
             set_speed_NE_cms(_wp_speed_cms);
@@ -609,12 +616,14 @@ bool AC_WPNav::update_wpnav()
     }
 
     // advance the target if necessary
+    // 翻译：必要时推进目标-->平滑路径
     bool ret = true;
     if (!advance_wp_target_along_track(_pos_control.get_dt_s())) {
         // To-Do: handle inability to advance along track (probably because of missing terrain data)
         ret = false;
     }
 
+    // 更新位置控制器 --> 根据位置信息计算pitch和roll的所需推力
     _pos_control.update_NE_controller();
 
     _wp_last_update_ms = AP_HAL::millis();

@@ -717,7 +717,10 @@ void RC_Channel_Copter::do_aux_function_change_force_flying(const AuxSwitchPos c
 
 // note that this is a method on the RC_Channels object, not the
 // individual channel
+// 翻译：请注意，这是RC_CHANNELS对象上的一种方法，而不是单个频道
 // save_trim - adds roll and pitch trims from the radio to ahrs
+// save_trim - 将收音机从收音机添加和俯仰装饰到AHRS
+// 函数作用：设置ahrs-trim也就是飞机平稳姿态的那个值
 void RC_Channels_Copter::save_trim()
 {
     float roll_trim = 0;

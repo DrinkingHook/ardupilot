@@ -121,6 +121,7 @@ void _AutoTakeoff::run()
     auto *attitude_control = copter.attitude_control;
 
     // if not armed set throttle to zero and exit immediately
+    // 翻译：如果没有解锁或者油门为0则立即退出
     if (!motors->armed() || !copter.ap.auto_armed) {
         // do not spool down tradheli when on the ground with motor interlock enabled
         copter.flightmode->make_safe_ground_handling(copter.is_tradheli() && motors->get_interlock());

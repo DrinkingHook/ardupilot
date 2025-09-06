@@ -536,14 +536,23 @@ public:
 
     // Auto modes
     enum class SubMode : uint8_t {
+        // 起飞阶段
         TAKEOFF,
+        //飞行器正在导航到任务计划中定义的特定航点。航点是车辆按顺序遵循的地理坐标（纬度、经度、高度）。
         WP,
+        // 降落
         LAND,
+        // 返航阶段
         RTL,
+        // 过渡用的盘旋阶段
         CIRCLE_MOVE_TO_EDGE,
+        // 盘旋阶段
         CIRCLE,
+        // 引导模式，由外部计算机实时控制
         NAVGUIDED,
+        // 对于旋翼机为定点，对于固定翼为盘旋
         LOITER,
+        // 爬升到设定高度后定点or盘旋
         LOITER_TO_ALT,
 #if AP_MISSION_NAV_PAYLOAD_PLACE_ENABLED && AC_PAYLOAD_PLACE_ENABLED
         NAV_PAYLOAD_PLACE,

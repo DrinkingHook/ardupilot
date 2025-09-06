@@ -18,7 +18,9 @@ bool ModeStabilize_Heli::init(bool ignore_checks)
 }
 
 // stabilize_run - runs the main stabilize controller
+// stabilize_run - 翻译：运行主稳定控制器
 // should be called at 100hz or more
+// 翻译：应该被100hz或者更高调用
 void ModeStabilize_Heli::run()
 {
     float target_roll_rad, target_pitch_rad;

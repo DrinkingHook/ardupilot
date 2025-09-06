@@ -415,6 +415,7 @@ void AC_AttitudeControl_Heli::input_rate_bf_roll_pitch_yaw_rads(float roll_rate_
 //
 
 // rate_controller_run - run lowest level rate controller and send outputs to the motors
+// 翻译：运行最低级别速率控制器并将输出发送到电动机
 // should be called at 100hz or more
 void AC_AttitudeControl_Heli::rate_controller_run()
 {	
@@ -424,7 +425,9 @@ void AC_AttitudeControl_Heli::rate_controller_run()
     _rate_gyro_time_us = AP_HAL::micros64();
 
     // call rate controllers and send output to motors object
+    // 翻译：调用速率控制器然后发送输出到电机对象
     // if using a flybar passthrough roll and pitch directly to motors
+    // 翻译：如果使用飞杆通行卷，直接向电动机倾斜
     if (_flags_heli.flybar_passthrough) {
         _motors.set_roll(_passthrough_roll_cds / 4500.0f);
         _motors.set_pitch(_passthrough_pitch_cds / 4500.0f);
@@ -451,13 +454,16 @@ void AC_AttitudeControl_Heli::update_althold_lean_angle_max(float throttle_in)
 
 //
 // private methods
+// 翻译：私人方法
 //
 
 //
 // body-frame rate controller
+// 翻译：集体框架速率控制器
 //
 
 // rate_bf_to_motor_roll_pitch - ask the rate controller to calculate the motor outputs to achieve the target rate in radians/second
+// 翻译：要求速率控制器计算电动机输出以在弧度/秒以弧度达到目标速率
 void AC_AttitudeControl_Heli::rate_bf_to_motor_roll_pitch(const Vector3f &rate_rads, float rate_roll_target_rads, float rate_pitch_target_rads)
 {
     if (_flags_heli.leaky_i) {
@@ -633,7 +639,9 @@ void AC_AttitudeControl_Heli::input_thrust_vector_rate_heading_rads(const Vector
 
 
 // Sets desired thrust vector and heading (in radians) with heading rate (in radians/s).
+// 翻译：设置需求的推力向量，航向（弧度）和航向速率（弧度/s）
 // Used for advanced attitude control where thrust direction is separated from yaw orientation.
+// 翻译：用于高级态度控制，推力方向与偏航方向分开。
 // Heading slew is constrained based on configured limits.
 void AC_AttitudeControl_Heli::input_thrust_vector_heading_rad(const Vector3f& thrust_vector, float heading_angle_rad, float heading_rate_rads)
 {

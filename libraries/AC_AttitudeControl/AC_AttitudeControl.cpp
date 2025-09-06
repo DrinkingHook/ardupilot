@@ -807,9 +807,13 @@ void AC_AttitudeControl::input_thrust_vector_rate_heading_cds(const Vector3f& th
 }
 
 // Sets desired thrust vector and heading rate (in radians/s).
+// 翻译：设置所需推力向量和航向速率（以弧度/s为单位）
 // Used for tilt-based navigation with independent yaw control.
+// 翻译：用于具有独立偏航控制的倾斜导航
 // The thrust vector defines the desired orientation (e.g., pointing direction for vertical thrust),
+// 翻译：推力矢量定义了所需的方向（例如，指向垂直推力的方向），
 // while the heading rate adjusts yaw. The input is shaped by acceleration and slew limits.
+// 翻译：而标题率调节偏航。输入是通过加速度和空转极限形成的。
 void AC_AttitudeControl::input_thrust_vector_rate_heading_rads(const Vector3f& thrust_vector, float heading_rate_rads, bool slew_yaw)
 {
     if (slew_yaw) {
@@ -875,8 +879,11 @@ void AC_AttitudeControl::input_thrust_vector_heading_cd(const Vector3f& thrust_v
 }
 
 // Sets desired thrust vector and heading (in radians) with heading rate (in radians/s).
+// 翻译：设置所需的矢量推力和航向（以弧度为单位）以及航向速率（以弧度/s为单位）
 // Used for advanced attitude control where thrust direction is separated from yaw orientation.
+// 翻译：用于先进的姿态控制，其中推力方向与偏航方向分离。。
 // Heading slew is constrained based on configured limits.
+// 翻译：根据配置的限制来限制航向转动。
 void AC_AttitudeControl::input_thrust_vector_heading_rad(const Vector3f& thrust_vector, float heading_angle_rad, float heading_rate_rads)
 {
     // a zero _angle_vel_yaw_max means that setting is disabled
@@ -884,16 +891,20 @@ void AC_AttitudeControl::input_thrust_vector_heading_rad(const Vector3f& thrust_
     heading_rate_rads = constrain_float(heading_rate_rads, -slew_yaw_max_rads, slew_yaw_max_rads);
 
     // update attitude target
+    // 翻译:更新目标姿态
     update_attitude_target();
 
     // calculate the attitude target euler angles
+    // 翻译：计算目标姿态欧拉角
     _attitude_target.to_euler(_euler_angle_target_rad);
 
     // convert thrust vector and heading to a quaternion attitude
+    // 翻译：将推力向量和航向转换为四元数姿态
     const Quaternion desired_attitude_quat = attitude_from_thrust_vector(thrust_vector, heading_angle_rad);
 
     if (_rate_bf_ff_enabled) {
         // calculate the angle error in x and y.
+        // 翻译：计算x和y的角度误差
         Vector3f attitude_error;
         float thrust_vector_diff_angle;
         Quaternion thrust_vec_correction_quat;
@@ -907,12 +918,15 @@ void AC_AttitudeControl::input_thrust_vector_heading_rad(const Vector3f& thrust_
         _ang_vel_target_rads.z = input_shaping_angle(attitude_error.z, _input_tc, get_accel_yaw_max_radss(), _ang_vel_target_rads.z, heading_rate_rads, slew_yaw_max_rads, _dt_s);
 
         // Limit the angular velocity
+        // 翻译：限制角速度
         ang_vel_limit(_ang_vel_target_rads, radians(_ang_vel_roll_max_degs), radians(_ang_vel_pitch_max_degs), slew_yaw_max_rads);
     } else {
         // set persisted quaternion target attitude
+        // 翻译：设定持续的四个目标态度
         _attitude_target = desired_attitude_quat;
 
         // Set rate feedforward requests to zero
+        // 翻译：将速率反馈请求设置为零
         _euler_rate_target_rads.zero();
         _ang_vel_target_rads.zero();
     }
@@ -921,10 +935,13 @@ void AC_AttitudeControl::input_thrust_vector_heading_rad(const Vector3f& thrust_
     ang_vel_to_euler_rate(_attitude_target, _ang_vel_target_rads, _euler_rate_target_rads);
 
     // Call quaternion attitude controller
+    // 调用四元素姿态控制器
     attitude_controller_run_quat();
 }
 
 // Command a thrust vector and heading rate
+// 翻译：控制推力矢量和航向速率
+// 每个机型都有自己的input_thrust_vector_heading_rad函数，决定使用哪个的看你声明了哪个子类去重写了虚函数
 void AC_AttitudeControl::input_thrust_vector_heading(const Vector3f& thrust_vector, HeadingCommand heading)
 {
     switch (heading.heading_mode) {
@@ -983,9 +1000,11 @@ Quaternion AC_AttitudeControl::attitude_from_thrust_vector(Vector3f thrust_vecto
 }
 
 // Calculates the body frame angular velocities to follow the target attitude
+// 翻译：计算机体框架角速度以遵循目标姿态
 void AC_AttitudeControl::update_attitude_target()
 {
     // rotate target and normalize
+    // 翻译：旋转目标并归一化
     Quaternion attitude_target_update;
     attitude_target_update.from_axis_angle(_ang_vel_target_rads * _dt_s);
     _attitude_target *= attitude_target_update;
@@ -993,6 +1012,7 @@ void AC_AttitudeControl::update_attitude_target()
 }
 
 // Calculates the body frame angular velocities to follow the target attitude
+// 翻译：计算身体框架角速度以遵循目标姿态
 void AC_AttitudeControl::attitude_controller_run_quat()
 {
     // This represents a quaternion rotation in NED frame to the body

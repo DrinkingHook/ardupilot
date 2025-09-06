@@ -39,6 +39,7 @@ bool ModeAuto::init(bool ignore_checks)
         }
 
         // initialise waypoint and spline controller
+        // 翻译：初始化航路点和样条控制器
         wp_nav->wp_and_spline_init_cm();
 
         // initialise desired speed overrides
@@ -110,10 +111,12 @@ void ModeAuto::run()
             }
         }
 
+        //处理do命令和导航命令
         mission.update();
     }
 
     // call the correct auto controller
+    // 选择正确的自动控制器
     switch (_mode) {
 
     case SubMode::TAKEOFF:
@@ -1045,26 +1048,37 @@ void ModeAuto::takeoff_run()
 }
 
 // auto_wp_run - runs the auto waypoint controller
+// auto_wp_run - 运行自动航点任务控制
 //      called by auto_run at 100hz or more
 void ModeAuto::wp_run()
 {
     // if not armed set throttle to zero and exit immediately
+    // 如果没有解锁就设置油门为0并立刻退出
     if (is_disarmed_or_landed()) {
         make_safe_ground_handling();
         return;
     }
 
     // set motors to full range
+    // 翻译：设置电机为全范围
     motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
 
     // run waypoint controller
+    // 翻译：运行航点控制
+    // 控制pitch和roll轴
+    // wp_nav->update_wpnav---根据时间推进航点目标，并计算出需要的水平控制输出
     copter.failsafe_terrain_set_status(wp_nav->update_wpnav());
 
     // WP_Nav has set the vertical position control targets
+    // 翻译：WP_Nav 已设置垂直位置控制目标
     // run the vertical position controller and set output throttle
+    // 翻译：运行垂直位置控制器并且设置油门输出
+    // 控制高度
     pos_control->update_U_controller();
 
     // call attitude controller with auto yaw
+    // 翻译：调用自动偏航姿态控制器
+    // 控制yaw轴
     attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), auto_yaw.get_heading());
 }
 
