@@ -358,7 +358,7 @@ void AP_MotorsHeli_Dual::mix_intermeshing(float pitch_input, float roll_input, f
     // _swashplate2.calculate(swash_roll, swash2_pitch, swash2_coll);
     /* -------------------Revise---------------------*/
     // Direct roll control on both swash plates
-    const float swash_roll = 0;
+    const float swash_roll = 0.0;
     // const float swash_roll2 = 0;
     // const float swash_roll1 = roll_input;
     // const float swash_roll2 = roll_input;
@@ -370,8 +370,8 @@ void AP_MotorsHeli_Dual::mix_intermeshing(float pitch_input, float roll_input, f
     // const float swash1_coll = 0.45 * _dcp_scaler * yaw_input + collective1_input + 1 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.4, 0.4));
     // const float swash2_coll = -0.45 * _dcp_scaler * yaw_input + collective2_input - 1 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.4, 0.4));
     // Differential collective for yaw and combined for thrust
-    const float swash1_coll = -0.6 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective1_input + 0.4 * _dcp_scaler * (yaw_input + constrain_float(_dcp_trim, -0.2, 0.2));
-    const float swash2_coll = 0.6 * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective2_input - 0.4 * _dcp_scaler * (yaw_input + constrain_float(_dcp_trim, -0.2, 0.2));
+    const float swash1_coll = -0.5f * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective1_input; //+ 0.5f* _dcp_scaler * (yaw_input /*+ constrain_float(_dcp_trim, -0.2, 0.2))
+    const float swash2_coll = 0.5f * _dcp_scaler * (roll_input + constrain_float(_dcp_trim, -0.2, 0.2)) + collective2_input; //- 0.5f * _dcp_scaler * (yaw_input + constrain_float(_dcp_trim, -0.2, 0.2))
 
     // Calculate servo positions in swashplate library
     //
@@ -496,7 +496,6 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
         // add differential collective pitch yaw compensation
         // 翻译：添加差分集体俯仰偏航补偿
         float yaw_compensation = 0.0f;
-        float yaw_compensation2 = 0.0f;
 
             // for intermeshing, reverse yaw in negative collective region and smoothen transition near zero collective
             // 翻译：对于交叉啮合，在负集体区域反转偏航，并在零集体附近平滑过渡
@@ -504,9 +503,8 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
             {
                 // yaw_compensation range: (-1,1) S-shaped curve (Logistic Model) 1/(1 + e^kt)
                 yaw_compensation = (1.0f - (2.0f / (1.0f + powf(2.7182818f, _yaw_rev_expo * (collective_out - _collective_zero_thrust_pct))))) * 0.8f;
-                // yaw_out = yaw_out * yaw_compensation;
-                yaw_compensation2 = (_dcp_yaw_effect * roll_out) * 0.2f;
-                yaw_out = yaw_out * yaw_compensation + yaw_compensation2;
+                yaw_out = yaw_out * yaw_compensation + (_dcp_yaw_effect * roll_out) * 0.25f;
+                // yaw_compensation2 = (_dcp_yaw_effect * roll_out) * 0.2f;
             }
     }
 

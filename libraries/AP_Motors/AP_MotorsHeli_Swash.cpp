@@ -236,10 +236,10 @@ void AP_MotorsHeli_Swash::calculate(float roll, float pitch, float collective)
         }
 
         _output[i] = (_rollFactor[i] * roll) + (_pitchFactor[i] * pitch) + _collectiveFactor[i] * collective;
-        if (_swash_type == SWASHPLATE_TYPE_H1 && (i == CH_1 || i == CH_2))
-        {
-            _output[i] += 0.5f;
-        }
+        // if (_swash_type == SWASHPLATE_TYPE_H1 && (i == CH_1 || i == CH_2))
+        // {
+        //     _output[i] += 0.5f;
+        // }
 
         // rescale from -1..1, so we can use the pwm calc that includes trim
         // 翻译：从-1..1恢复，因此我们可以使用包括装饰的PWM计算

@@ -481,6 +481,7 @@ void Mode::get_pilot_desired_lean_angles_rad(float &roll_out_rad, float &pitch_o
     }
 
     //transform pilot's normalised roll or pitch stick input into a roll and pitch euler angle command
+    // 翻译：将飞行员标准化的滚转或俯仰杆输入转换为滚转和俯仰欧拉角命令
     rc_input_to_roll_pitch_rad(channel_roll->norm_input_dz(), channel_pitch->norm_input_dz(), angle_max_rad,  angle_limit_rad, roll_out_rad, pitch_out_rad);
 }
 
