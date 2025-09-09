@@ -243,6 +243,7 @@ void AP_MotorsHeli_Swash::calculate(float roll, float pitch, float collective)
 
         // rescale from -1..1, so we can use the pwm calc that includes trim
         // 翻译：从-1..1恢复，因此我们可以使用包括装饰的PWM计算
+        // 将_output[i]的范围从0..1转换为-1..1
         _output[i] = 2.0f * _output[i] - 1.0f;
 
         if (_make_servo_linear)
