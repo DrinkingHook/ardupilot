@@ -60,6 +60,7 @@ extern const AP_HAL::HAL& hal;
 #include <AP_Torqeedo/AP_Torqeedo.h>
 #include <AP_Vehicle/AP_Vehicle_Type.h>
 #include <AP_Parachute/AP_Parachute_config.h>
+#include <AP_Scripting/AP_Scripting.h>
 #define SWITCH_DEBOUNCE_TIME_MS  200
 
 const AP_Param::GroupInfo RC_Channel::var_info[] = {
@@ -259,7 +260,8 @@ const AP_Param::GroupInfo RC_Channel::var_info[] = {
     // @Values{Copter, Rover, Plane, Sub}: 212:Mount1 Roll, 213:Mount1 Pitch, 214:Mount1 Yaw, 215:Mount2 Roll, 216:Mount2 Pitch, 217:Mount2 Yaw
     // @Values{Copter, Rover, Plane, Blimp, Sub}:  218:Loweheiser throttle
     // @Values{Copter}: 219:Transmitter Tuning
-    // @Values{Copter, Rover, Plane, Sub}: 300:Scripting1, 301:Scripting2, 302:Scripting3, 303:Scripting4, 304:Scripting5, 305:Scripting6, 306:Scripting7, 307:Scripting8, 308:Scripting9, 309:Scripting10, 310:Scripting11, 311:Scripting12, 312:Scripting13, 313:Scripting14, 314:Scripting15, 315:Scripting16
+    // @Values{All-Vehicles}: 300:Scripting1, 301:Scripting2, 302:Scripting3, 303:Scripting4, 304:Scripting5, 305:Scripting6, 306:Scripting7, 307:Scripting8, 308:Scripting9, 309:Scripting10, 310:Scripting11, 311:Scripting12, 312:Scripting13, 313:Scripting14, 314:Scripting15, 315:Scripting16
+    // @Values{All-Vehicles}: 316:Stop-Restart Scripting
     // @User: Standard
     AP_GROUPINFO("OPTION",  6, RC_Channel, option, 0),
 
@@ -461,6 +463,23 @@ float RC_Channel::norm_input_ignore_trim() const
     return constrain_float(ret, -1.0f, 1.0f);
 }
 
+
+bool RC_Channel::norm_input_ignore_trim(float &norm_in) const
+{
+    if (!rc().has_valid_input()) {
+        return false;
+    }
+    if (radio_in == 0) {
+        return false;
+    }
+    if (radio_max <= radio_min) {
+        // sanity check min and max to avoid divide by zero
+        return false;
+    }
+    norm_in = norm_input_ignore_trim();
+    return true;
+}
+
 /*
   get percentage input from 0 to 100. This ignores the trim value.
  */
@@ -655,7 +674,9 @@ void RC_Channel::init_aux_function(const AUX_FUNC ch_option, const AuxSwitchPos 
     case AUX_FUNC::DISARM:
 #endif
     case AUX_FUNC::DO_NOTHING:
-#if AP_LANDINGGEAR_ENABLED
+#if AP_GRIPPER_ENABLED
+    case AUX_FUNC::GRIPPER:
+#endif
     case AUX_FUNC::LANDING_GEAR:
 #endif
     case AUX_FUNC::LOST_VEHICLE_SOUND:
@@ -700,6 +721,7 @@ void RC_Channel::init_aux_function(const AUX_FUNC ch_option, const AuxSwitchPos 
     case AUX_FUNC::SCRIPTING_14:
     case AUX_FUNC::SCRIPTING_15:
     case AUX_FUNC::SCRIPTING_16:
+    case AUX_FUNC::STOP_RESTART_SCRIPTING:
 #endif
 #if AP_VIDEOTX_ENABLED
     case AUX_FUNC::VTX_POWER:
@@ -744,10 +766,6 @@ void RC_Channel::init_aux_function(const AUX_FUNC ch_option, const AuxSwitchPos 
 #if AP_GPS_ENABLED
     case AUX_FUNC::GPS_DISABLE:
     case AUX_FUNC::GPS_DISABLE_YAW:
-#endif
-#if AP_GRIPPER_ENABLED
-    case AUX_FUNC::GRIPPER:
-#endif
 #if AP_INERTIALSENSOR_KILL_IMU_ENABLED
     case AUX_FUNC::KILL_IMU1:
     case AUX_FUNC::KILL_IMU2:
@@ -1879,7 +1897,26 @@ bool RC_Channel::do_aux_function(const AuxFuncTrigger &trigger)
     }
 #endif
 
-    // do nothing for these functions
+#if AP_SCRIPTING_ENABLED
+    case AUX_FUNC::STOP_RESTART_SCRIPTING: {
+        AP_Scripting *scr = AP::scripting();
+        if (scr != nullptr) {
+            switch (ch_flag) {
+            case AuxSwitchPos::HIGH:
+                scr->stop();
+                break;
+            case AuxSwitchPos::MIDDLE:
+                break;
+            case AuxSwitchPos::LOW:
+                scr->restart_all();
+                break;
+            }
+        }
+        break;
+    }
+#endif
+
+// do nothing for these functions
 #if HAL_MOUNT_ENABLED
     case AUX_FUNC::MOUNT1_ROLL:
     case AUX_FUNC::MOUNT1_PITCH:

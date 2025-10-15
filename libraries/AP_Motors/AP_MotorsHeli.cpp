@@ -200,7 +200,7 @@ void AP_MotorsHeli::output_min()
     update_motor_control(AP_MotorsHeli_RSC::RotorControlState::STOP);
 
     // override limits flags
-    set_limit_flag_pitch_roll_yaw(true);
+    limit.set_rpy(true);
     limit.throttle_lower = true;
     limit.throttle_upper = false;
 }
@@ -333,7 +333,9 @@ void AP_MotorsHeli::output_logic()
         _spool_state = SpoolState::SHUT_DOWN;
     }
 
-    // 启动时先从 SHUT_DOWN 状态开始，在状态机执行完成SHUT_DOWN 状态后，状态机会自动切换到 GROUND_IDLE 状态
+    // Always reset the collective limit flags, they get set in move_actuators() if collective reaches a limit
+    limit.set_throttle(false);
+
     switch (_spool_state) {
         case SpoolState::SHUT_DOWN:
             // Motors should be stationary.
@@ -341,9 +343,9 @@ void AP_MotorsHeli::output_logic()
 
             // set limits flags
             if (!using_leaky_integrator()) {
-                set_limit_flag_pitch_roll_yaw(true);
+                limit.set_rpy(true);
             } else {
-                set_limit_flag_pitch_roll_yaw(false);
+                limit.set_rpy(false);
             }
 
             // make sure the motors are spooling in the correct direction
@@ -359,9 +361,9 @@ void AP_MotorsHeli::output_logic()
             // Motors should be stationary or at ground idle.
             // set limits flags
             if (_heliflags.land_complete && !using_leaky_integrator()) {
-                set_limit_flag_pitch_roll_yaw(true);
+                limit.set_rpy(true);
             } else {
-                set_limit_flag_pitch_roll_yaw(false);
+                limit.set_rpy(false);
             }
 
             // Servos should be moving to correct the current attitude.
@@ -381,9 +383,9 @@ void AP_MotorsHeli::output_logic()
 
             // set limits flags
             if (_heliflags.land_complete && !using_leaky_integrator()) {
-                set_limit_flag_pitch_roll_yaw(true);
+                limit.set_rpy(true);
             } else {
-                set_limit_flag_pitch_roll_yaw(false);
+                limit.set_rpy(false);
             }
 
             // make sure the motors are spooling in the correct direction
@@ -403,9 +405,9 @@ void AP_MotorsHeli::output_logic()
 
             // set limits flags
             if (_heliflags.land_complete && !using_leaky_integrator()) {
-                set_limit_flag_pitch_roll_yaw(true);
+                limit.set_rpy(true);
             } else {
-                set_limit_flag_pitch_roll_yaw(false);
+                limit.set_rpy(false);
             }
 
             // make sure the motors are spooling in the correct direction
@@ -423,9 +425,9 @@ void AP_MotorsHeli::output_logic()
 
             // set limits flags
             if (_heliflags.land_complete && !using_leaky_integrator()) {
-                set_limit_flag_pitch_roll_yaw(true);
+                limit.set_rpy(true);
             } else {
-                set_limit_flag_pitch_roll_yaw(false);
+                limit.set_rpy(false);
             }
 
             // make sure the motors are spooling in the correct direction

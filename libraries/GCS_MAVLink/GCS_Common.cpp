@@ -73,6 +73,8 @@
 #include "MissionItemProtocol_Rally.h"
 #include "MissionItemProtocol_Fence.h"
 
+#include <AP_CANManager/AP_MAVLinkCAN.h>
+
 #include <AP_Notify/AP_Notify.h>
 #include <AP_Vehicle/AP_Vehicle_config.h>
 
@@ -111,18 +113,20 @@
 extern AP_IOMCU iomcu;
 #endif
 
+#include "GCS_FTP.h"
+
 #include <ctype.h>
 
 extern const AP_HAL::HAL& hal;
 
 struct GCS_MAVLINK::LastRadioStatus GCS_MAVLINK::last_radio_status;
-uint8_t GCS_MAVLINK::mavlink_active = 0;
-uint8_t GCS_MAVLINK::chan_is_streaming = 0;
+mavlink_channel_mask_t GCS_MAVLINK::mavlink_active = 0;
+mavlink_channel_mask_t GCS_MAVLINK::chan_is_streaming = 0;
 uint32_t GCS_MAVLINK::reserve_param_space_start_ms;
 
 // private channels are ones used for point-to-point protocols, and
 // don't get broadcasts or fwded packets
-uint8_t GCS_MAVLINK::mavlink_private = 0;
+mavlink_channel_mask_t GCS_MAVLINK::mavlink_private = 0;
 
 GCS *GCS::_singleton = nullptr;
 
@@ -222,8 +226,10 @@ bool GCS_MAVLINK::init(uint8_t instance)
 
     if (mavlink_protocol == AP_SerialManager::SerialProtocol_MAVLink2 ||
         mavlink_protocol == AP_SerialManager::SerialProtocol_MAVLinkHL) {
+#if AP_MAVLINK_SIGNING_ENABLED
         // load signing key
         load_signing_key();
+#endif  // AP_MAVLINK_SIGNING_ENABLED
     } else {
         // user has asked to only send MAVLink1
         _channel_status.flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
@@ -1092,11 +1098,17 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
         { MAVLINK_MSG_ID_ATTITUDE,              MSG_ATTITUDE},
         { MAVLINK_MSG_ID_ATTITUDE_QUATERNION,   MSG_ATTITUDE_QUATERNION},
         { MAVLINK_MSG_ID_GLOBAL_POSITION_INT,   MSG_LOCATION},
+#if AP_AHRS_ENABLED
         { MAVLINK_MSG_ID_LOCAL_POSITION_NED,    MSG_LOCAL_POSITION},
+#endif  // AP_AHRS_ENABLED
         { MAVLINK_MSG_ID_VFR_HUD,               MSG_VFR_HUD},
 #endif
+#if AP_MAVLINK_MSG_HWSTATUS_ENABLED
         { MAVLINK_MSG_ID_HWSTATUS,              MSG_HWSTATUS},
+#endif  // AP_MAVLINK_MSG_HWSTATUS_ENABLED
+#if AP_MAVLINK_MSG_WIND_ENABLED
         { MAVLINK_MSG_ID_WIND,                  MSG_WIND},
+#endif  // AP_MAVLINK_MSG_WIND_ENABLED
 #if AP_MAVLINK_MSG_RANGEFINDER_SENDING_ENABLED
         { MAVLINK_MSG_ID_RANGEFINDER,           MSG_RANGEFINDER},
 #endif  // AP_MAVLINK_MSG_RANGEFINDER_SENDING_ENABLED
@@ -1133,7 +1145,9 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
         { MAVLINK_MSG_ID_MAG_CAL_PROGRESS,      MSG_MAG_CAL_PROGRESS},
         { MAVLINK_MSG_ID_MAG_CAL_REPORT,        MSG_MAG_CAL_REPORT},
 #endif
+#if AP_AHRS_ENABLED
         { MAVLINK_MSG_ID_EKF_STATUS_REPORT,     MSG_EKF_STATUS_REPORT},
+#endif  // AP_AHRS_ENABLED
         { MAVLINK_MSG_ID_PID_TUNING,            MSG_PID_TUNING},
         { MAVLINK_MSG_ID_VIBRATION,             MSG_VIBRATION},
 #if AP_RPM_ENABLED
@@ -1252,7 +1266,7 @@ uint16_t GCS_MAVLINK::get_reschedule_interval_ms(const deferred_message_bucket_t
         interval_ms *= 4;
     }
 #if AP_MAVLINK_FTP_ENABLED
-    if (AP_HAL::millis() - ftp.last_send_ms < 1000) {
+    if (AP_HAL::millis() - GCS_FTP::get_last_send_ms(chan) < 1000) {
         // we are sending ftp replies
         interval_ms *= 4;
     }
@@ -1821,7 +1835,9 @@ void GCS_MAVLINK::send_message(enum ap_message id)
 #if HAL_HIGH_LATENCY2_ENABLED
     case MSG_HIGH_LATENCY2:
 #endif
+#if AP_MAVLINK_SIGNING_ENABLED
         save_signing_timestamp(false);
+#endif // AP_MAVLINK_SIGNING_ENABLED
         // update the mask of all streaming channels
         if (is_streaming()) {
             GCS_MAVLINK::chan_is_streaming |= (1U<<(chan-MAVLINK_COMM_0));
@@ -2079,9 +2095,11 @@ GCS_MAVLINK::update_receive(uint32_t max_time_us)
 void GCS_MAVLINK::log_mavlink_stats()
 {
     uint8_t flags = 0;
+#if AP_MAVLINK_SIGNING_ENABLED
     if (signing_enabled()) {
         flags |= (uint8_t)Flags::USING_SIGNING;
     }
+#endif  // AP_MAVLINK_SIGNING_ENABLED
     if (is_streaming()) {
         flags |= (uint8_t)Flags::STREAMING;
     }
@@ -2493,7 +2511,7 @@ void GCS_MAVLINK::send_ahrs()
 /*
     send a statustext text string to specific MAVLink bitmask
 */
-void GCS::send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list, uint8_t dest_bitmask)
+void GCS::send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list, mavlink_channel_mask_t dest_bitmask)
 {
     char first_piece_of_text[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1]{};
 
@@ -2658,7 +2676,7 @@ void GCS_MAVLINK::service_statustext(void)
 {
     GCS::StatusTextQueue &_statustext_queue = gcs().statustext_queue();
 
-    const uint8_t chan_bit = (1U<<chan);
+    const mavlink_channel_mask_t chan_bit = (1U<<chan);
     // note the lack of idx++ here.  We may remove the iteration item
     // from the queue as the last thing we do, in which case we don't
     // want to move idx.
@@ -3798,7 +3816,7 @@ void GCS_MAVLINK::handle_statustext(const mavlink_message_t &msg) const
     char text[text_len] = { 'G','C','S',':'};
     uint8_t offset = strlen(text);
 
-    if (msg.sysid != gcs().sysid_gcs()) {
+    if (!gcs().sysid_is_gcs(msg.sysid)) {
         offset = hal.util->snprintf(text,
                                     max_prefix_len,
                                     "SRC=%u/%u:",
@@ -3902,6 +3920,11 @@ void GCS_MAVLINK::handle_set_gps_global_origin(const mavlink_message_t &msg)
 
     // sanity check location
     if (!check_latlng(packet.latitude, packet.longitude)) {
+        // silently drop the request
+        return;
+    }
+    // sanity check altitude in mm, note that abs can't handle INT32_MIN correctly
+    if (packet.altitude < -LOCATION_ALT_MAX_M * 1000 || packet.altitude > LOCATION_ALT_MAX_M * 1000) {
         // silently drop the request
         return;
     }
@@ -4104,7 +4127,7 @@ void GCS_MAVLINK::handle_command_ack(const mavlink_message_t &msg)
 // control of switch position and RC PWM values.
 void GCS_MAVLINK::handle_rc_channels_override(const mavlink_message_t &msg)
 {
-    if(msg.sysid != gcs().sysid_gcs()) {
+    if (!gcs().sysid_is_gcs(msg.sysid)) {
         return; // Only accept control from our gcs
     }
 
@@ -4190,13 +4213,13 @@ MAV_RESULT GCS_MAVLINK::handle_command_mag_cal(const mavlink_command_int_t &pack
 }
 #endif  // COMPASS_CAL_ENABLED
 
-#if HAL_CANMANAGER_ENABLED
+#if AP_MAVLINKCAN_ENABLED
 /*
   handle MAV_CMD_CAN_FORWARD
  */
 MAV_RESULT GCS_MAVLINK::handle_can_forward(const mavlink_command_int_t &packet, const mavlink_message_t &msg)
 {
-    return AP::can().handle_can_forward(chan, packet, msg) ? MAV_RESULT_ACCEPTED : MAV_RESULT_FAILED;
+    return AP_MAVLinkCAN::handle_can_forward(chan, packet, msg) ? MAV_RESULT_ACCEPTED : MAV_RESULT_FAILED;
 }
 
 /*
@@ -4204,9 +4227,9 @@ MAV_RESULT GCS_MAVLINK::handle_can_forward(const mavlink_command_int_t &packet, 
  */
 void GCS_MAVLINK::handle_can_frame(const mavlink_message_t &msg) const
 {
-    AP::can().handle_can_frame(msg);
+    AP_MAVLinkCAN::handle_can_frame(msg);
 }
-#endif  // HAL_CANMANAGER_ENABLED
+#endif  // AP_MAVLINKCAN_ENABLED
 
 void GCS_MAVLINK::handle_distance_sensor(const mavlink_message_t &msg)
 {
@@ -4267,7 +4290,7 @@ void GCS_MAVLINK::handle_heartbeat(const mavlink_message_t &msg)
 {
     // if the heartbeat is from our GCS then we don't failsafe for
     // now...
-    if (msg.sysid == gcs().sysid_gcs()) {
+    if (gcs().sysid_is_gcs(msg.sysid)) {
         sysid_mygcs_seen(AP_HAL::millis());
     }
 }
@@ -4329,7 +4352,7 @@ void GCS_MAVLINK::handle_message(const mavlink_message_t &msg)
 
 #if AP_MAVLINK_FTP_ENABLED
     case MAVLINK_MSG_ID_FILE_TRANSFER_PROTOCOL:
-        handle_file_transfer_protocol(msg);
+        GCS_FTP::handle_file_transfer_protocol(msg, chan);
         break;
 #endif
 
@@ -4563,11 +4586,11 @@ void GCS_MAVLINK::handle_message(const mavlink_message_t &msg)
         break;
 #endif
 
-#if HAL_CANMANAGER_ENABLED
+#if AP_MAVLINKCAN_ENABLED
     case MAVLINK_MSG_ID_CAN_FILTER_MODIFY:
-        AP::can().handle_can_filter_modify(msg);
+        AP_MAVLinkCAN::handle_can_filter_modify(msg);
         break;
-#endif
+#endif  // AP_MAVLINKCAN_ENABLED
 
 #if AP_OPENDRONEID_ENABLED
     case MAVLINK_MSG_ID_OPEN_DRONE_ID_ARM_STATUS:
@@ -5373,7 +5396,7 @@ MAV_RESULT GCS_MAVLINK::handle_command_do_set_roi(const Location &roi_loc)
         return MAV_RESULT_FAILED;
     }
 
-    if (roi_loc.lat == 0 && roi_loc.lng == 0 && roi_loc.alt == 0) {
+    if (!roi_loc.initialised()) {
         mount->clear_roi_target();
     } else {
         mount->set_roi_target(roi_loc);
@@ -5579,10 +5602,10 @@ MAV_RESULT GCS_MAVLINK::handle_command_int_packet(const mavlink_command_int_t &p
         return handle_command_battery_reset(packet);
 #endif
 
-#if HAL_CANMANAGER_ENABLED
+#if AP_MAVLINKCAN_ENABLED
     case MAV_CMD_CAN_FORWARD:
         return handle_can_forward(packet, msg);
-#endif
+#endif  // AP_MAVLINKCAN_ENABLED
 
 #if HAL_HIGH_LATENCY2_ENABLED
     case MAV_CMD_CONTROL_HIGH_LATENCY:
@@ -5876,6 +5899,7 @@ bool GCS_MAVLINK::try_send_mission_message(const enum ap_message id)
     return true;
 }
 
+#if AP_MAVLINK_MSG_HWSTATUS_ENABLED
 void GCS_MAVLINK::send_hwstatus()
 {
     mavlink_msg_hwstatus_send(
@@ -5883,6 +5907,7 @@ void GCS_MAVLINK::send_hwstatus()
         hal.analogin->board_voltage()*1000,
         0);
 }
+#endif  // AP_MAVLINK_MSG_HWSTATUS_ENABLED
 
 #if AP_RPM_ENABLED
 void GCS_MAVLINK::send_rpm() const
@@ -6347,10 +6372,12 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         send_heartbeat();
         break;
 
+#if AP_MAVLINK_MSG_HWSTATUS_ENABLED
     case MSG_HWSTATUS:
         CHECK_PAYLOAD_SIZE(HWSTATUS);
         send_hwstatus();
         break;
+#endif  // AP_MAVLINK_MSG_HWSTATUS_ENABLED
 
 #if AP_AHRS_ENABLED
     case MSG_LOCATION:
@@ -7075,7 +7102,7 @@ bool GCS_MAVLINK::accept_packet(const mavlink_status_t &status,
         return true;
     }
 
-    if (msg.sysid == gcs().sysid_gcs()) {
+    if (gcs().sysid_is_gcs(msg.sysid)) {
         return true;
     }
 
@@ -7327,7 +7354,7 @@ void GCS_MAVLINK::manual_override(RC_Channel *c, int16_t value_in, const uint16_
 
 void GCS_MAVLINK::handle_manual_control(const mavlink_message_t &msg)
 {
-    if (msg.sysid != gcs().sysid_gcs()) {
+    if (!gcs().sysid_is_gcs(msg.sysid)) {
         return; // only accept control from our gcs
     }
 
@@ -7361,11 +7388,11 @@ uint8_t GCS_MAVLINK::receiver_rssi() const
 {
     AP_RSSI *aprssi = AP::rssi();
     if (aprssi == nullptr) {
-        return 255;
+        return UINT8_MAX;
     }
 
     if (!aprssi->enabled()) {
-        return 255;
+        return UINT8_MAX;
     }
 
     // scale across the full valid range

@@ -52,17 +52,15 @@
 
 // ADC is available on lots of pins on the esp32, 
 // but adc2 cant co-exist with wifi we choose to allow ADC on :
-//#define HAL_DISABLE_ADC_DRIVER 1
-#define TRUE 1
-#define HAL_USE_ADC TRUE
+// #define AP_HAL_ANALOGIN_ENABLED 0
 
 // the pin number, the gain/multiplier associated with it, the ardupilot name for the pin in parameter/s.
-#define HAL_ESP32_ADC_PINS_OPTION2 {\
+#define HAL_ESP32_ADC_PINS_OPTION2 \
 	{ADC1_GPIO35_CHANNEL, 11, 35},\
 	{ADC1_GPIO34_CHANNEL, 11, 34},\
 	{ADC1_GPIO39_CHANNEL, 11, 39},\
 	{ADC1_GPIO36_CHANNEL, 11, 36}\
-}
+
 #define HAL_ESP32_ADC_PINS HAL_ESP32_ADC_PINS_OPTION2
 
 // uncommenting one or more of these will give more console debug in certain areas..
@@ -75,11 +73,6 @@
 
 // 2 use udp, 1 use tcp...  for udp,client needs to connect as UDP in missionplanner etc to 192.168.4.1 port 14550
 #define HAL_ESP32_WIFI 1
-
-// see boards.py
-#ifndef ENABLE_HEAP
-#define ENABLE_HEAP 1
-#endif
 
 #define WIFI_SSID "ardupilot123"
 #define WIFI_PWD "ardupilot123"
@@ -95,10 +88,8 @@
 			GPIO_NUM_23 } 
 
 // SPI BUS setup, including gpio, dma, etc
-#define HAL_ESP32_SPI_BUSES {}
 
 // SPI per-device setup, including speeds, etc.
-#define HAL_ESP32_SPI_DEVICES {}
 
 //I2C bus list
 #define HAL_ESP32_I2C_BUSES \
@@ -116,11 +107,6 @@
 #define HAL_LOGGING_FILESYSTEM_ENABLED 0
 #define HAL_LOGGING_DATAFLASH_ENABLED 0
 #define HAL_LOGGING_MAVLINK_ENABLED 1
-
-#define HAL_BOARD_LOG_DIRECTORY "/SDCARD/APM/LOGS"
-#define HAL_BOARD_STORAGE_DIRECTORY "/SDCARD/APM/STORAGE"
-#define HAL_BOARD_LOG_DIRECTORY "/SDCARD/APM/LOGS"
-#define HAL_BOARD_TERRAIN_DIRECTORY "/SDCARD/APM/TERRAIN"
 
 #define HAL_LOGGING_BACKENDS_DEFAULT 1
 //SD CARD SUPPORT
