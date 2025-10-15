@@ -81,6 +81,7 @@ void AP_RPM::init(void)
 
     convert_params();
 
+    // 限制RPM最大实例数为RPM_MAX_INSTANCES
     for (uint8_t i=0; i<RPM_MAX_INSTANCES; i++) {
         switch (_params[i].type) {
 #if AP_RPM_PIN_ENABLED
