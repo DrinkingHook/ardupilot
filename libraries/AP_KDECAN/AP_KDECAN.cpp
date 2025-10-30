@@ -873,27 +873,27 @@ void AP_KDECAN_Driver::loop() // 驱动循环
 //         //     }
 //         // }
 
-        for (uint8_t i=0; i<ARRAY_SIZE(_output.pwm); i++) {
-            if ((_init.detected_bitmask & (1UL<<i)) != 0) {
-                send_packet_uint16(SET_PWM_OBJ_ADDR, (i + ESC_NODE_ID_FIRST), 1000, pwm[i]);
-            }
-        }
+        // for (uint8_t i=0; i<ARRAY_SIZE(_output.pwm); i++) {
+        //     if ((_init.detected_bitmask & (1UL<<i)) != 0) {
+        //         send_packet_uint16(SET_PWM_OBJ_ADDR, (i + ESC_NODE_ID_FIRST), 1000, pwm[i]);
+        //     }
+        // }
 
-#if HAL_WITH_ESC_TELEM
-        // broadcast as request-telemetry msg to everyone
-        if (_init.detected_bitmask != 0 && now_ms - _telemetry.timer_ms >= TELEMETRY_INTERVAL_MS) {
-            if (send_packet(TELEMETRY_OBJ_ADDR, BROADCAST_NODE_ID, 10000)) {
-                _telemetry.timer_ms = now_ms;
-            }
-        }
-#endif // HAL_WITH_ESC_TELEM
+// #if HAL_WITH_ESC_TELEM
+//         // broadcast as request-telemetry msg to everyone
+//         if (_init.detected_bitmask != 0 && now_ms - _telemetry.timer_ms >= TELEMETRY_INTERVAL_MS) {
+//             if (send_packet(TELEMETRY_OBJ_ADDR, BROADCAST_NODE_ID, 10000)) {
+//                 _telemetry.timer_ms = now_ms;
+//             }
+//         }
+// #endif // HAL_WITH_ESC_TELEM
 
 //             //-------------------------------------------------发送CAN消息-------------------------------------------------
 
-            if (send_packet(ESC_INFO_OBJ_ADDR, BROADCAST_NODE_ID, 100000)) {
-                _init.detected_bitmask_ms = now_ms;
-            }
-        }
+        //     if (send_packet(ESC_INFO_OBJ_ADDR, BROADCAST_NODE_ID, 100000)) {
+        //         _init.detected_bitmask_ms = now_ms;
+        //     }
+        // }
 
 //             //     // 获取当前通道的指针
 //             //     const SRV_Channel *c = SRV_Channels::srv_channel(i);
