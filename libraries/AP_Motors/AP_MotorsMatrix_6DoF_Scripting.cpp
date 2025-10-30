@@ -39,6 +39,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
             }
             break;
         }
+        case SpoolState::Pre_rotate:
         case SpoolState::SPOOLING_UP:
         case SpoolState::THROTTLE_UNLIMITED:
         case SpoolState::SPOOLING_DOWN:
