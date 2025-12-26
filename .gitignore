@@ -176,4 +176,5 @@ autotest_result_*_junit.xml
 /libraries/AP_HAL_ESP32/targets/esp32/esp-idf/sdkconfig
 /libraries/AP_HAL_ESP32/targets/esp32s3/esp-idf/sdkconfig
 
+.cache/
 compile_commands.json
