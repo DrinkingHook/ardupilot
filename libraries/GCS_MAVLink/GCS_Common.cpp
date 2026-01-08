@@ -223,27 +223,6 @@ void GCS_MAVLINK::send_power_status(void)
                                   hal.analogin->board_voltage() * 1000,
                                   hal.analogin->servorail_voltage() * 1000,
                                   hal.analogin->power_status_flags());
-    // mavlink_msg_efi_status_send(chan,
-    //                             0,
-    //                             //   AP_KDECANUSE::int1为uint16_t类型。转换为有符号整数后除以3000.0f 得到浮点数,保留两位小数
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int1)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int2)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int3)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int4)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int5)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int6)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int7)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int8)) / 3000.0f,
-    //                             AP_KDECANUSE::int9,  // intake_manifold_pressure
-    //                             AP_KDECANUSE::int10, // intake_manifold_temperature
-    //                             AP_KDECANUSE::int11, // cylinder_head_temperature
-    //                             AP_KDECANUSE::int12, // ignition_timing
-    //                             AP_KDECANUSE::int13, // injection_time
-    //                             AP_KDECANUSE::int14, // exhaust_gas_temperature
-    //                             AP_KDECANUSE::int15, // throttle_out
-    //                             AP_KDECANUSE::int16, // pt_compensation
-    //                             0,
-    //                             0);
 }
 
 #if AP_SCHEDULER_ENABLED
@@ -820,31 +799,6 @@ void GCS_MAVLINK::handle_mission_write_partial_list(const mavlink_message_t &msg
     }
     use_prot->handle_mission_write_partial_list(*this, msg, packet);
 }
-//----------------------------接收QGC地面站发送过来的EFI消息-------------------------------------------------------------------------------------
-
-// void GCS_MAVLINK::handle_efi_status(const mavlink_message_t &msg) const
-// {
-//     // 解码 EFI 状态消息
-//     mavlink_efi_status_t packet;
-//     mavlink_msg_efi_status_decode(&msg, &packet);
-
-//     // 提取并转换参数，假设负数值应被当作0处理
-//     auto convert_param = [](float value)
-//     {
-//         return static_cast<uint16_t>(std::lround(value > 0 ? value : 0));
-//     };
-
-//     //-------------------------------替换消息----------------------------------------------------------------------------------------------------------------------
-
-//     AP_KDECANUSE::qgc_read1 = convert_param(packet.ecu_index);           // uint16
-//     AP_KDECANUSE::qgc_read2 = convert_param(packet.intake_manifold_temperature); // uint16
-//     AP_KDECANUSE::qgc_read3 = convert_param(packet.fuel_consumed);       // uint16
-//     AP_KDECANUSE::qgc_read4 = convert_param(packet.fuel_flow);           // uint16
-//     AP_KDECANUSE::qgc_read5 = convert_param(packet.engine_load);         // uint16
-//     AP_KDECANUSE::qgc_read6 = convert_param(packet.rpm); // uint16
-//     AP_KDECANUSE::qgc_read7 = convert_param(packet.spark_dwell_time);    // uint16
-//     AP_KDECANUSE::qgc_read8 = convert_param(packet.barometric_pressure); // uint16
-// }
 #if HAL_MOUNT_ENABLED
 /*
   pass mavlink messages to the AP_Mount singleton

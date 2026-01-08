@@ -299,104 +299,23 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         chan,
         AP_EFI::is_healthy(),
         state.ecu_index,
-        (AP_KDECANUSE::int7),
-        (AP_KDECANUSE::int2),
-        state.fuel_consumption_rate_cm3pm, 
-        (AP_KDECANUSE::int3), //涡轮
-        (AP_KDECANUSE::int5),
-        (AP_KDECANUSE::int1),
-        static_cast<float>(AP_KDECANUSE::int4) / 10.0f, // 滑油压力
-        state.intake_manifold_pressure_kpa,
-        (AP_KDECANUSE::int6), // 油温
-        (AP_KDECANUSE::int7), // 缸头温度
+        state.engine_speed_rpm,
+        state.estimated_consumed_fuel_volume_cm3,//油位
+        state.fuel_consumption_rate_cm3pm,
+        state.engine_load_percent,
+        state.throttle_position_percent,//空燃比
+        state.spark_dwell_time_ms,
+        state.oil_pressure, //滑油压力
+        state.intake_manifold_pressure_kpa,// 涡轮压力
+        state.intake_manifold_temperature,// 水温
+        state.oil_temperature,// 油温
         state.cylinder_status.ignition_timing_deg,
         state.cylinder_status.injection_time_ms,
-        (AP_KDECANUSE::int5), // 水温
+        KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature),
         state.throttle_out,
         state.pt_compensation,
         0,
         0);
-    // (AP_KDECANUSE::int1) / 3000.0f,
-    //     (AP_KDECANUSE::int2) / 3000.0f,
-    //     (AP_KDECANUSE::int3) / 3000.0f,
-    //     (AP_KDECANUSE::int4) / 3000.0f,
-    //     (AP_KDECANUSE::int5) / 3000.0f,
-    //     (AP_KDECANUSE::int6) / 3000.0f,
-    //     (AP_KDECANUSE::int7) / 3000.0f,
-    //     (AP_KDECANUSE::int8) / 3000.0f,
-    // float qac = (AP_KDECANUSE::int1) / 3000.0f;
-    // float qac2 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
-    // float qac3 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
-    // float qac4 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
-    // float qac5 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
-    // float qac6 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
-    // float qac7 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
-    // float qac8 = (AP_KDECANUSE::int1) / 3000.0f; // Placeholder for future use
-    // mavlink_msg_efi_status_send(
-    //     chan,
-    //     AP_EFI::is_healthy(),
-    //     qac,
-    //     qac2,
-    //     qac3,
-    //     qac4,
-    //     qac5,
-    //     qac6,
-    //     qac7,
-    //     qac8,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     0);
-    // mavlink_msg_efi_status_send(
-    //     chan,
-    //     AP_EFI::is_healthy(), // is_healthy
-    //     0,                    // ecu_index
-    //     1000.0f,              // engine_speed_rpm
-    //     50.0f,                // estimated_consumed_fuel_volume_cm3
-    //     5.0f,                 // fuel_consumption_rate_cm3pm
-    //     80.0f,                // engine_load_percent
-    //     30.0f,                // throttle_position_percent
-    //     2.5f,                 // spark_dwell_time_ms
-    //     101.3f,               // atmospheric_pressure_kpa
-    //     98.0f,                // intake_manifold_pressure_kpa
-    //     25.0f,                // intake_manifold_temperature (摄氏度)
-    //     120.0f,               // cylinder_head_temperature (摄氏度)
-    //     10.0f,                // ignition_timing_deg
-    //     3.0f,                 // injection_time_ms
-    //     400.0f,               // exhaust_gas_temperature (摄氏度)
-    //     40.0f,                // throttle_out
-    //     1.0f,                 // pt_compensation
-    //     12.5f,                // ignition_voltage
-    //     3.5f                  // fuel_pressure
-    // );
-
-    // mavlink_msg_efi_status_send(chan,
-    //                             AP_EFI::is_healthy(),
-    //                             //   AP_KDECANUSE::int1为uint16_t类型。转换为有符号整数后除以3000.0f 得到浮点数,保留两位小数
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int1)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int2)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int3)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int4)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int5)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int6)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int7)) / 3000.0f,
-    //                             static_cast<float>(static_cast<int32_t>(AP_KDECANUSE::int8)) / 3000.0f,
-    //                             AP_KDECANUSE::int9,  // intake_manifold_pressure
-    //                             AP_KDECANUSE::int10, // intake_manifold_temperature
-    //                             AP_KDECANUSE::int11, // cylinder_head_temperature
-    //                             AP_KDECANUSE::int12, // ignition_timing
-    //                             AP_KDECANUSE::int13, // injection_time
-    //                             AP_KDECANUSE::int14, // exhaust_gas_temperature
-    //                             AP_KDECANUSE::int15, // throttle_out
-    //                             AP_KDECANUSE::int16, // pt_compensation
-    //                             0,
-    //                             0);
 }
 
 // get a copy of state structure
