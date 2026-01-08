@@ -4480,14 +4480,14 @@ void GCS_MAVLINK::handle_message(const mavlink_message_t &msg)
         break;
 #endif
 
+// 处理接收的EFI数据
 #if AP_EFI_MAV_ENABLED
     case MAVLINK_MSG_ID_EFI_STATUS:
     {
-        // AP_EFI *efi = AP::EFI();
-        // if (efi) {
-        //     efi->handle_EFI_message(msg);
-        // }
-        // handle_efi_status(msg);
+        AP_EFI *efi = AP::EFI();
+        if (efi) {
+            efi->handle_EFI_message(msg);
+        }
         break;
     }
 #endif
@@ -6416,6 +6416,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         break;
 #endif
 
+// 以Mavlink形式转发EFI数据
 #if HAL_EFI_ENABLED
     case MSG_EFI_STATUS: {
         CHECK_PAYLOAD_SIZE(EFI_STATUS);
