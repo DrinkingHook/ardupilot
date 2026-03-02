@@ -289,6 +289,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
 
         // control output forced to zero
         _control_output = 0.0f;
+        _Pre_rotate_out = 0.0f;
 
         // governor is forced to disengage status and reset outputs
         governor_reset();
@@ -297,6 +298,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         //turbine start flag on
         _starting = true;
 
+        SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate, 1000);
         // ensure we always deactivate the autorotation state if we disarm
         autorotation.set_active(false, true);
 
@@ -308,6 +310,12 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
 
         break;
 
+    case RotorControlState::Pre_rotate:
+        update_pre_rotor_runup(1.0f, dt);
+    //   _heliflags.Pre_rotate_finshed = true;
+        SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate,
+                                    1000 + _Pre_rotate_out * 1000);
+        break;
     case RotorControlState::IDLE:
         // set rotor ramp to decrease speed to zero
         update_rotor_ramp(0.0f, dt);
@@ -350,6 +358,8 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         break;
 
     case RotorControlState::ACTIVE:
+        _Pre_rotate_out = 0.0f;
+        SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate, 1000);
         // set main rotor ramp to increase to full speed
         update_rotor_ramp(1.0f, dt);
 
@@ -390,7 +400,27 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
     // output to rsc servo
     write_rsc(_control_output);
 }
+void AP_MotorsHeli_RSC::update_pre_rotor_runup(float pre_rotor_ramp_input, float dt)
+{
+    float ramp_time = MAX(float(_ramp_time.get()), 1.0);
 
+    // check if we need to use the bailout ramp up rate for the autorotation case
+    if (autorotation.bailing_out()) {
+        ramp_time = autorotation.get_bailout_ramp();
+    }
+
+    // ramp output upwards towards target
+    if (_Pre_rotate_out < pre_rotor_ramp_input) {
+        _Pre_rotate_out += (dt / ramp_time);
+
+        // Do not allow output to exceed requested input
+        _Pre_rotate_out = MIN(_Pre_rotate_out, pre_rotor_ramp_input);
+
+    } else {
+        // ramping down happens instantly
+        _Pre_rotate_out = pre_rotor_ramp_input;
+    }
+}
 // update_rotor_ramp - slews rotor output scalar between 0 and 1, outputs float scalar to _rotor_ramp_output
 void AP_MotorsHeli_RSC::update_rotor_ramp(float rotor_ramp_input, float dt)
 {

@@ -1,3 +1,4 @@
+#include "AP_Motors/AP_Motors_Class.h"
 #include "Copter.h"
 
 /*
@@ -59,6 +60,8 @@ void ModeStabilize::run()
     case AP_Motors::SpoolState::SPOOLING_UP:
     case AP_Motors::SpoolState::SPOOLING_DOWN:
         // do nothing
+        break;
+    case AP_Motors::SpoolState::Pre_rotate:
         break;
     }
 

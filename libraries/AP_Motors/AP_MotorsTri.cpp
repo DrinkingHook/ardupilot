@@ -107,6 +107,10 @@ void AP_MotorsTri::output_to_motors()
             set_actuator_with_slew(_actuator[AP_MOTORS_MOT_4], thr_lin.thrust_to_actuator(_thrust_rear));
             rc_write_angle(AP_MOTORS_CH_TRI_YAW, degrees(_pivot_angle)*100);
             break;
+        case SpoolState::Pre_rotate:
+            // pre-rotating the main rotor
+            // no output to motors, just wait for pre-rotation to complete
+            break;
     }
 
     rc_write(AP_MOTORS_MOT_1, output_to_pwm(_actuator[AP_MOTORS_MOT_1]));

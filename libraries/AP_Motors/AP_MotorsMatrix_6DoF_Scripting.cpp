@@ -63,6 +63,8 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                 }
             }
             break;
+        case SpoolState::Pre_rotate:
+            break;
     }
 
     // Send to each motor

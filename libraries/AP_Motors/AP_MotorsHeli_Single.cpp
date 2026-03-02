@@ -503,6 +503,8 @@ void AP_MotorsHeli_Single::output_to_motors()
                     // Operate DDFP to between DDFP_SPIN_MIN and DDFP_SPIN_MAX using thrust linearisation
                     output_to_ddfp_tail(thr_lin.thrust_to_actuator(_servo4_out));
                     break;
+                case AP_Motors::SpoolState::Pre_rotate:
+                    break;
             }
             break;
         }

@@ -316,11 +316,26 @@ void AP_MotorsHeli::output_logic()
     // force desired and current spool mode if disarmed and armed with interlock enabled
     if (armed()) {
         if (!get_interlock()) {
-            _spool_desired = DesiredSpoolState::GROUND_IDLE;
+            // _spool_desired = DesiredSpoolState::GROUND_IDLE;
+            _spool_desired = DesiredSpoolState::SHUT_DOWN;
+            _heliflags.Pre_rotate_stop = true;
+  
+            // _spool_state = SpoolState::Pre_rotate;
         } else {
             _heliflags.init_targets_on_arming = false;
+            if (_heliflags.Pre_rotate_finshed) {
+            //   if (fabs(_main_rotor._control_output) < 0.001f) {
+            //     _spool_desired = DesiredSpoolState::Pre_rotate;
+        
+            //   }
+            }else{
+                _heliflags.Pre_rotate_stop = false;
+                _spool_desired = DesiredSpoolState::Pre_rotate;
+                //   _spool_desired = DesiredSpoolState::SHUT_DOWN;
+            }
         }
     } else {
+        _heliflags.Pre_rotate_finshed = false;
         _heliflags.init_targets_on_arming = true;
         _spool_desired = DesiredSpoolState::SHUT_DOWN;
         _spool_state = SpoolState::SHUT_DOWN;
@@ -339,13 +354,40 @@ void AP_MotorsHeli::output_logic()
             }
 
             // make sure the motors are spooling in the correct direction
-            if (_spool_desired != DesiredSpoolState::SHUT_DOWN) {
-                _spool_state = SpoolState::GROUND_IDLE;
+            if (_spool_desired == DesiredSpoolState::Pre_rotate && !_heliflags.Pre_rotate_stop) {
+                // _spool_state = SpoolState::GROUND_IDLE;
+                _spool_state = SpoolState::Pre_rotate;
                 break;
+            } else if (_spool_desired != DesiredSpoolState::SHUT_DOWN){
+              _spool_state = SpoolState::GROUND_IDLE;
             }
 
             break;
+            
+        case SpoolState::Pre_rotate:
 
+            if (_heliflags.land_complete && !using_leaky_integrator()) {
+            set_limit_flag_pitch_roll_yaw(true);
+            } else {
+            set_limit_flag_pitch_roll_yaw(false);
+            }
+            if (_spool_desired == DesiredSpoolState::SHUT_DOWN || _heliflags.Pre_rotate_stop) {
+            _spool_state = SpoolState::SHUT_DOWN;
+            } else if (_spool_desired == DesiredSpoolState::Pre_rotate) {
+            // float dt;
+            // uint64_t now = AP_HAL::micros64();
+            if (fabs(_main_rotor._Pre_rotate_out - 1.0f) < 0.1f) {
+                _spool_state = SpoolState::SHUT_DOWN;
+                _heliflags.Pre_rotate_finshed = true;
+                _spool_desired = DesiredSpoolState::GROUND_IDLE;
+            }
+            // _spool_state = SpoolState::Pre_rotate;
+            }
+            //   else {
+            //     _spool_desired = DesiredSpoolState::SHUT_DOWN;
+            //   }
+
+            break;
         case SpoolState::GROUND_IDLE: {
             // Motors should be stationary or at ground idle.
             // set limits flags
@@ -603,6 +645,8 @@ AP_MotorsHeli_RSC::RotorControlState AP_MotorsHeli::get_rotor_control_state() co
         case SpoolState::SPOOLING_DOWN:
             // sends idle output to motors and wait for rotor to stop
             return AP_MotorsHeli_RSC::RotorControlState::IDLE;
+        case SpoolState::Pre_rotate:
+            return AP_MotorsHeli_RSC::RotorControlState::Pre_rotate;
     }
 
     // Should be unreachable, but needed to keep the compiler happy

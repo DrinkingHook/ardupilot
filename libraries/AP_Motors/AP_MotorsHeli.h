@@ -254,6 +254,8 @@ protected:
         uint8_t below_land_min_coll     : 1;    // true if collective is below H_COL_LAND_MIN
         uint8_t rotor_spooldown_complete : 1;    // true if the rotors have spooled down completely
         uint8_t start_engine            : 1;    // true if turbine start RC option is initiated
+        uint8_t Pre_rotate_stop : 1; // true if pre-rotate stop is requested
+        uint8_t Pre_rotate_finshed : 1; // true if pre-rotate finished
     } _heliflags;
 
     // parameters

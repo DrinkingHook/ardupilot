@@ -86,6 +86,8 @@ void AP_MotorsTailsitter::output_to_motors()
             _actuator[2] = 0.0f;
             _external_min_throttle = 0.0;
             break;
+        case AP_Motors::SpoolState::Pre_rotate:
+            break;
         case SpoolState::GROUND_IDLE:
             set_actuator_with_slew(_actuator[0], actuator_spin_up_to_ground_idle());
             set_actuator_with_slew(_actuator[1], actuator_spin_up_to_ground_idle());
