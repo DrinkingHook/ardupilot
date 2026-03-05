@@ -32,6 +32,7 @@
 // default main rotor ramp up time in seconds
 #define AP_MOTORS_HELI_RSC_RAMP_TIME            1       // 1 second to ramp output to main rotor ESC to setpoint
 #define AP_MOTORS_HELI_RSC_RUNUP_TIME           10      // 10 seconds for rotor to reach full speed
+#define AP_MOTORS_HELI_RSC_PRE_RAMP_TIME        1
 
 // Throttle Curve Defaults
 #define AP_MOTORS_HELI_RSC_THRCRV_0_DEFAULT     25
@@ -217,6 +218,14 @@ const AP_Param::GroupInfo AP_MotorsHeli_RSC::var_info[] = {
     // @Increment: 1
     // @User: Standard
     AP_GROUPINFO("GOV_TORQUE", 24, AP_MotorsHeli_RSC, _governor_torque, 30),
+    
+    // @Param: PRE_RAMP_TIME
+    // @DisplayName: Pre Throttle Ramp Time
+    // @Description: Time in seconds for throttle output (HeliRSC servo) to ramp from ground idle (RSC_IDLE) to flight idle throttle setting when motor interlock is enabled (throttle hold off).
+    // @Range: 0 60
+    // @Units: s
+    // @User: Standard
+    AP_GROUPINFO("Pre_ramp", 25, AP_MotorsHeli_RSC, _pre_ramp_time, AP_MOTORS_HELI_RSC_PRE_RAMP_TIME),
 
     // 25 was AROT_ENG_T, has been moved to AROT_RAMP in RSC autorotation sub group
 
@@ -402,7 +411,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
 }
 void AP_MotorsHeli_RSC::update_pre_rotor_runup(float pre_rotor_ramp_input, float dt)
 {
-    float ramp_time = MAX(float(_ramp_time.get()), 1.0);
+    float ramp_time = MAX(float(_pre_ramp_time.get()), 1.0);
 
     // check if we need to use the bailout ramp up rate for the autorotation case
     if (autorotation.bailing_out()) {

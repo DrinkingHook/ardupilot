@@ -113,6 +113,7 @@ public:
     AP_Int16        _critical_speed;          // Rotor speed below which flight is not possible
     AP_Int16        _idle_output;             // Rotor control output while at idle
 
+    AP_Int16        _pre_ramp_time;
     float _Pre_rotate_out;
     float _control_output; // latest logic controlled output
 private:
