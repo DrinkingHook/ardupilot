@@ -69,6 +69,7 @@
 #include <AP_CheckFirmware/AP_CheckFirmware.h>
 #include <Filter/LowPassFilter.h>
 #include <AP_KDECAN/AP_KDECAN.h>
+#include <AP_PrerotaingCan/AP_PrerotaingCan.h>
 #include <Filter/AP_Filter.h>
 #include <AP_Stats/AP_Stats.h>              // statistics library
 #if AP_SCRIPTING_ENABLED
@@ -467,6 +468,10 @@ protected:
 
 #if AP_KDECAN_ENABLED
     AP_KDECAN kdecan;
+#endif
+
+#if AP_PrerotaingCan_ENABLED
+    AP_PrerotaingCan prerotaingcan;
 #endif
 
 #if AP_FENCE_ENABLED

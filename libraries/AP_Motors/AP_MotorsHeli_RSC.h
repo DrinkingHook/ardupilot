@@ -16,6 +16,8 @@ enum RotorControlMode {
     ROTOR_CONTROL_MODE_AUTOTHROTTLE
 };
 
+extern bool pre_rotate_can;
+    
 class AP_MotorsHeli_RSC {
 public:
     friend class AP_MotorsHeli_Single;

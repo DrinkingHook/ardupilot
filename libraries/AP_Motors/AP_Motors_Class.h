@@ -333,6 +333,7 @@ protected:
     DesiredSpoolState   _spool_desired;             // desired spool state
     SpoolState          _spool_state;               // current spool mode
 
+    friend class AP_PrerotaingCan_Driver;
     // mask of what channels need fast output
     uint32_t            _motor_fast_mask;
 

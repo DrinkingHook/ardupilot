@@ -311,3 +311,4 @@ define HAL_IMU_TEMP_DEFAULT 45
 # Enable Sagetech MXS ADSB transponder
 define HAL_ADSB_SAGETECH_MXS_ENABLED HAL_ADSB_ENABLED
 
+define AP_PrerotaingCan_ENABLED 1

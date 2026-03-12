@@ -68,6 +68,9 @@
 #define AP_KDECAN_ENABLED 0
 #endif
 
+#ifndef AP_PrerotaingCan_ENABLED
+#define AP_PrerotaingCan_ENABLED 1
+#endif
 #ifndef HAL_GENERATOR_ENABLED
 #define HAL_GENERATOR_ENABLED 0
 #endif

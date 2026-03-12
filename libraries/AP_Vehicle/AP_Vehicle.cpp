@@ -291,6 +291,10 @@ const AP_Param::GroupInfo AP_Vehicle::var_info[] = {
     AP_SUBGROUPINFO(rpm_sensor, "RPM", 32, AP_Vehicle, AP_RPM),
 #endif
 
+#if AP_PrerotaingCan_ENABLED
+    AP_SUBGROUPINFO(prerotaingcan, "PRE", 33, AP_Vehicle, AP_PrerotaingCan),
+#endif
+
     AP_GROUPEND
 };
 
@@ -498,6 +502,10 @@ void AP_Vehicle::setup()
 
 #if AP_KDECAN_ENABLED
     kdecan.init();
+#endif
+
+#if AP_PrerotaingCan_ENABLED
+    prerotaingcan.init();
 #endif
 
 #if AP_AIS_ENABLED

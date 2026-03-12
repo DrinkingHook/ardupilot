@@ -30,6 +30,7 @@
   #include <AP_CANManager/AP_CANManager.h>
   #include <AP_DroneCAN/AP_DroneCAN.h>
   #include <AP_PiccoloCAN/AP_PiccoloCAN.h>
+  #include <AP_PrerotaingCan/AP_PrerotaingCan.h>
 #endif
 
 #if NUM_SERVO_CHANNELS == 0
@@ -514,6 +515,12 @@ void SRV_Channels::push()
 #if AP_KDECAN_ENABLED
     if (AP::kdecan() != nullptr) {
         AP::kdecan()->update();
+    }
+#endif
+
+#if AP_PrerotaingCan_ENABLED
+    if (AP::PrerotaingCan() != nullptr) {
+        AP::PrerotaingCan()->update();
     }
 #endif
 

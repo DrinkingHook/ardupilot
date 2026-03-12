@@ -589,6 +589,9 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     GOBJECT(kdecan, "KDE_",   AP_KDECAN),
 #endif
 
+#if AP_PrerotaingCan_ENABLED
+    GOBJECT(prerotaingcan,"Pre", AP_PrerotaingCan ),
+#endif
 #if defined(HAL_PERIPH_ENABLE_ESC_APD)
     GARRAY(pole_count, 0, "ESC_NUM_POLES", 22),
 #endif
