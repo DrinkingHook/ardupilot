@@ -125,6 +125,12 @@ public:
 
     // get motor interlock status.  true means motors run, false motors don't run
     bool                get_interlock() const { return _interlock; }
+    
+    // set motor interlock status
+    void                set_prerotaing(bool set) { _pre_rotaing_flag = set;}
+
+    // get motor interlock status.  true means motors run, false motors don't run
+    bool                get_prerotaing() const { return _pre_rotaing_flag; }
 
     // get/set spoolup block
     bool                get_spoolup_block() const { return _spoolup_block; }
@@ -403,6 +409,7 @@ private:
     bool _interlock;         // 1 if the motor interlock is enabled (i.e. motors run), 0 if disabled (motors don't run)
     bool _initialised_ok;    // 1 if initialisation was successful
     bool _spoolup_block;     // true if spoolup is blocked
+    bool _pre_rotaing_flag;
 
     static AP_Motors *_singleton;
 };

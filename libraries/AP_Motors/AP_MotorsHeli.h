@@ -256,6 +256,7 @@ protected:
         uint8_t start_engine            : 1;    // true if turbine start RC option is initiated
         uint8_t Pre_rotate_stop : 1; // true if pre-rotate stop is requested
         uint8_t Pre_rotate_finshed : 1; // true if pre-rotate finished
+        uint8_t Pre_rotae_again : 1;
     } _heliflags;
 
     // parameters
@@ -276,6 +277,8 @@ protected:
     float           _collective_zero_thrust_pct;      // collective zero thrutst parameter value converted to 0 ~ 1 range
     float           _collective_land_min_pct;      // collective land min parameter value converted to 0 ~ 1 range
     uint8_t         _servo_test_cycle_counter = 0;   // number of test cycles left to run after bootup
+    
+    uint64_t    _pre_ramp_start_us;   // 预转开始时间（微秒）
 
     motor_frame_type _frame_type;
     motor_frame_class _frame_class;

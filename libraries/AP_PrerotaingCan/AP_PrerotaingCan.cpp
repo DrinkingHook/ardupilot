@@ -116,7 +116,7 @@ bool AP_PrerotaingCan_Driver::send_pre_rotate_can_packet()
     // 指令数据 payload
     const uint8_t payload[8] = {0x00, 0x01, 0x73, 0x18, 0x00, 0x00, 0x00, 0x00};
 
-    // 写法 A：最常见情况 - object_address 放低字节，destination_id 放高字节
+    // 最常见情况 - object_address 放低字节，destination_id 放高字节
     bool sent_ok = send_packet(
         0x03,           // object_address     → 低 8 bit
         0x00,           // destination_id     → 高 8 bit → 形成 0x0300 ? 交换后可能得 0x0003
@@ -124,11 +124,13 @@ bool AP_PrerotaingCan_Driver::send_pre_rotate_can_packet()
         payload,
         8
     );
-    // 调试输出
+    
+    #if AP_PrerotaingCan_DEBUG
     GCS_SEND_TEXT(MAV_SEVERITY_INFO,
                   "PreRotate CAN send ID expected 0x0003: %s",
                   sent_ok ? "OK" : "FAILED");
-
+    #endif
+    
     return sent_ok;
 }
 void AP_PrerotaingCan_Driver::loop()
@@ -137,18 +139,18 @@ void AP_PrerotaingCan_Driver::loop()
             static uint32_t last_send = 0;
             uint32_t now = AP_HAL::millis();
     
-            if (pre_rotate_can && (now - last_send >= 300)) {  // 每 300ms 发送一次
+            if (pre_rotate_can && (now - last_send >= 500)) {  // 每 300ms 发送一次
                 bool success = send_pre_rotate_can_packet();
                 last_send = now;
     
-                // 可选：只在失败时多打印，或根据需要调整
+                // 只在失败时多打印
                 if (!success) {
                     GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "PreRotate CAN send failed!");
                 }
             }
     
-            // 这里可以加其他循环逻辑...
-            hal.scheduler->delay(10);  // 避免 CPU 100%（根据需要调整）
+
+            hal.scheduler->delay(10);  // 避免 CPU 100%
         }
 }
 

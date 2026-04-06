@@ -322,11 +322,12 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         break;
 
     case RotorControlState::Pre_rotate:
-        update_pre_rotor_runup(1.0f, dt);
-    //   _heliflags.Pre_rotate_finshed = true;
-        pre_rotate_can = true;
+        // update_pre_rotor_runup(1.0f, dt);
+        // _heliflags.Pre_rotate_finshed = true;
+        // pre_rotate_can = true;
         // SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate,
         //                             1000 + _Pre_rotate_out * 1000);
+        SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate,2000);
         break;
     case RotorControlState::IDLE:
         // set rotor ramp to decrease speed to zero
@@ -371,7 +372,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
 
     case RotorControlState::ACTIVE:
         _Pre_rotate_out = 0.0f;
-        pre_rotate_can = false;
+        // pre_rotate_can = false;
         SRV_Channels::set_output_pwm(SRV_Channel::HeliPreRotate, 1000);
         // set main rotor ramp to increase to full speed
         update_rotor_ramp(1.0f, dt);

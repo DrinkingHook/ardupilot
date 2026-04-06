@@ -120,6 +120,7 @@ void RC_Channel_Copter::init_aux_function(const AUX_FUNC ch_option, const AuxSwi
     case AUX_FUNC::ATTCON_FEEDFWD:
     case AUX_FUNC::INVERTED:
     case AUX_FUNC::MOTOR_INTERLOCK:
+    case AUX_FUNC::PRE_ROTAING:
 #if HAL_PARACHUTE_ENABLED
     case AUX_FUNC::PARACHUTE_3POS:      // we trust the vehicle will be disarmed so even if switch is in release position the chute will not release
     case AUX_FUNC::PARACHUTE_ENABLE:
@@ -375,6 +376,10 @@ bool RC_Channel_Copter::do_aux_function(const AUX_FUNC ch_option, const AuxSwitc
 #else
             copter.ap.motor_interlock_switch = (ch_flag == AuxSwitchPos::HIGH || ch_flag == AuxSwitchPos::MIDDLE);
 #endif
+            break;
+            
+        case AUX_FUNC::PRE_ROTAING:
+            copter.ap.pre_motor_rotaing_switch = (ch_flag == AuxSwitchPos::HIGH || ch_flag == AuxSwitchPos::MIDDLE);
             break;
 
 #if FRAME_CONFIG == HELI_FRAME

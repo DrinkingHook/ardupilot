@@ -372,6 +372,7 @@ private:
             uint8_t unused2                 : 1; // 26      // aux switch rc_override is allowed
             uint8_t armed_with_airmode_switch : 1; // 27      // we armed using a arming switch
             uint8_t prec_land_active        : 1; // 28      // true if precland is active
+            uint8_t pre_motor_rotaing_switch  : 1; // 29      // true if pilot is requesting motor interlock enable
         };
         uint32_t value;
     } ap_t;

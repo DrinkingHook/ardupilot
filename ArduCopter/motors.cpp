@@ -174,6 +174,14 @@ void Copter::motors_output()
         LOGGER_WRITE_EVENT(LogEvent::MOTORS_INTERLOCK_DISABLED);
     }
 
+    bool pre_rotaing = motors->armed() && ap.pre_motor_rotaing_switch;
+    if (!motors->get_prerotaing() && pre_rotaing) {
+        motors->set_prerotaing(true);
+        // LOGGER_WRITE_EVENT(LogEvent::MOTORS_INTERLOCK_ENABLED);
+    } else if (motors->get_prerotaing() && !pre_rotaing) {
+        motors->set_prerotaing(false);
+        // LOGGER_WRITE_EVENT(LogEvent::MOTORS_INTERLOCK_DISABLED);
+    }
     if (ap.motor_test) {
         // check if we are performing the motor test
         motor_test_output();

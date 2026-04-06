@@ -315,26 +315,66 @@ void AP_MotorsHeli::output_logic()
 {
     // force desired and current spool mode if disarmed and armed with interlock enabled
     if (armed()) {
-        if (!get_interlock()) {
-            // _spool_desired = DesiredSpoolState::GROUND_IDLE;
-            _spool_desired = DesiredSpoolState::SHUT_DOWN;
+        if(get_interlock() && _heliflags.Pre_rotate_finshed){
+            // if(get_prerotaing()){
+            //     _spool_desired = DesiredSpoolState::GROUND_IDLE;
+            // }
             _heliflags.Pre_rotate_stop = true;
-  
-            // _spool_state = SpoolState::Pre_rotate;
-        } else {
-            _heliflags.init_targets_on_arming = false;
-            if (_heliflags.Pre_rotate_finshed) {
-            //   if (fabs(_main_rotor._control_output) < 0.001f) {
-            //     _spool_desired = DesiredSpoolState::Pre_rotate;
-        
-            //   }
+            _spool_desired = DesiredSpoolState::THROTTLE_UNLIMITED;
+        }else{
+            if(get_prerotaing()){
+                if (_heliflags.Pre_rotate_finshed) {
+                //   if (fabs(_main_rotor._control_output) < 0.001f) {
+                //     _spool_desired = DesiredSpoolState::Pre_rotate;
+                    _spool_desired = DesiredSpoolState::GROUND_IDLE;
+                    _heliflags.Pre_rotae_again = false;
+                //   }
+                }else{
+                    _heliflags.Pre_rotate_stop = false;
+                    _spool_desired = DesiredSpoolState::Pre_rotate;
+                    //   _spool_desired = DesiredSpoolState::SHUT_DOWN;
+                }
             }else{
-                _heliflags.Pre_rotate_stop = false;
-                _spool_desired = DesiredSpoolState::Pre_rotate;
-                //   _spool_desired = DesiredSpoolState::SHUT_DOWN;
+                _spool_desired = DesiredSpoolState::SHUT_DOWN;
+                _heliflags.Pre_rotate_stop = true;
+                _heliflags.Pre_rotae_again = true;
             }
         }
+        // if( !get_prerotaing() && get_interlock() ) {
+        //     _spool_desired = DesiredSpoolState::GROUND_IDLE;
+        //     _heliflags.Pre_rotate_stop = true;
+        // } else {
+        //     if (_heliflags.Pre_rotate_finshed) {
+        //     //   if (fabs(_main_rotor._control_output) < 0.001f) {
+        //     //     _spool_desired = DesiredSpoolState::Pre_rotate;
+        //         _spool_desired = DesiredSpoolState::GROUND_IDLE;
+        //     //   }
+        //     }else{
+        //         _heliflags.Pre_rotate_stop = false;
+        //         _spool_desired = DesiredSpoolState::Pre_rotate;
+        //         //   _spool_desired = DesiredSpoolState::SHUT_DOWN;
+        //     }
+        // }
+        // if (!get_interlock() && _spool_desired != DesiredSpoolState::Pre_rotate) {
+        //     // _spool_desired = DesiredSpoolState::GROUND_IDLE;
+        //     _spool_desired = DesiredSpoolState::SHUT_DOWN;
+        //     // _spool_state = SpoolState::Pre_rotate;
+        // } else {
+        //     _heliflags.init_targets_on_arming = false;
+        //     _heliflags.Pre_rotate_stop = true;
+        //     // if (_heliflags.Pre_rotate_finshed) {
+        //     // //   if (fabs(_main_rotor._control_output) < 0.001f) {
+        //     // //     _spool_desired = DesiredSpoolState::Pre_rotate;
+        
+        //     // //   }
+        //     // }else{
+        //     //     _heliflags.Pre_rotate_stop = false;
+        //     //     _spool_desired = DesiredSpoolState::Pre_rotate;
+        //     //     //   _spool_desired = DesiredSpoolState::SHUT_DOWN;
+        //     // }
+        // }
     } else {
+        _heliflags.Pre_rotate_stop = true;
         _heliflags.Pre_rotate_finshed = false;
         _heliflags.init_targets_on_arming = true;
         _spool_desired = DesiredSpoolState::SHUT_DOWN;
@@ -372,16 +412,25 @@ void AP_MotorsHeli::output_logic()
             set_limit_flag_pitch_roll_yaw(false);
             }
             if (_spool_desired == DesiredSpoolState::SHUT_DOWN || _heliflags.Pre_rotate_stop) {
-            _spool_state = SpoolState::SHUT_DOWN;
-            } else if (_spool_desired == DesiredSpoolState::Pre_rotate) {
-            // float dt;
-            // uint64_t now = AP_HAL::micros64();
-            if (fabs(_main_rotor._Pre_rotate_out - 1.0f) < 0.1f) {
                 _spool_state = SpoolState::SHUT_DOWN;
-                _heliflags.Pre_rotate_finshed = true;
-                _spool_desired = DesiredSpoolState::GROUND_IDLE;
-            }
-            // _spool_state = SpoolState::Pre_rotate;
+            } else if (_spool_desired == DesiredSpoolState::Pre_rotate) {
+                if (_heliflags.Pre_rotae_again == true) {
+                    _pre_ramp_start_us = AP_HAL::micros64();   // 记录预转开始的时刻
+                    _heliflags.Pre_rotate_finshed = false;     // 确保标志重置
+                    _heliflags.Pre_rotae_again = false;
+                }
+                uint64_t now = AP_HAL::micros64();
+                // if (fabs(_main_rotor._Pre_rotate_out - 1.0f) < 0.1f) {
+                //     _spool_state = SpoolState::SHUT_DOWN;
+                //     _heliflags.Pre_rotate_finshed = true;
+                //     _spool_desired = DesiredSpoolState::GROUND_IDLE;
+                // }
+                if((now - _pre_ramp_start_us )>=(uint64_t)_main_rotor._pre_ramp_time.get() * 1000000ULL){
+                    _spool_state = SpoolState::SHUT_DOWN;
+                    _heliflags.Pre_rotate_finshed = true;
+                    _spool_desired = DesiredSpoolState::GROUND_IDLE;
+                }
+                // _spool_state = SpoolState::Pre_rotate;
             }
             //   else {
             //     _spool_desired = DesiredSpoolState::SHUT_DOWN;
