@@ -31,6 +31,7 @@
   #include <AP_DroneCAN/AP_DroneCAN.h>
   #include <AP_PiccoloCAN/AP_PiccoloCAN.h>
   #include <AP_PrerotaingCan/AP_PrerotaingCan.h>
+#include <AP_KSTCAN/AP_KSTCAN.h>
 #endif
 
 #if NUM_SERVO_CHANNELS == 0
@@ -544,6 +545,14 @@ void SRV_Channels::push()
                     continue;
                 }
                 ap_pcan->update();
+                break;
+            }
+#endif
+#if HAL_KST_CAN_ENABLE
+            case AP_CAN::Protocol::KSTCAN: {
+                AP_KSTCAN *ap_kstcan = AP_KSTCAN::get_pcan(i);
+                if (ap_kstcan == nullptr) { continue; }
+                ap_kstcan->update();
                 break;
             }
 #endif

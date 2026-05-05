@@ -30,5 +30,6 @@ public:
         TOFSenseP = 13,
         RadarCAN = 14,  // used by NanoRadar and Hexsoon
         PrerotaingCan = 15,
+        KSTCAN = 16,
     };
 };
