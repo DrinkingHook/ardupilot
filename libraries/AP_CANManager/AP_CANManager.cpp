@@ -236,11 +236,14 @@ void AP_CANManager::init()
 #endif
 #if HAL_KST_CAN_ENABLE
         case AP_CAN::Protocol::KSTCAN:
-            _drivers[drv_num] = NEW_NOTHROW AP_KSTCAN;
+            // _drivers[drv_num] = NEW_NOTHROW AP_KSTCAN;
+            _drivers[drv_num] = _drv_param[drv_num]._kstcan = NEW_NOTHROW AP_KSTCAN;
+            
             if (_drivers[drv_num] == nullptr) {
                 AP_BoardConfig::allocation_error("KSTCAN %d", drv_num + 1);
                 continue;
             }
+            
             AP_Param::load_object_from_eeprom((AP_KSTCAN*)_drivers[drv_num], AP_KSTCAN::var_info);
             break;
 #endif

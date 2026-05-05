@@ -6,6 +6,7 @@
 
 #include <AP_HAL/AP_HAL.h>
 #include <AP_CANManager/AP_CANDriver.h>
+#include <AP_CANManager/AP_CANDriver.h>
 #include <AP_Param/AP_Param.h>
 #include <SRV_Channel/SRV_Channel.h>
 

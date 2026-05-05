@@ -4,21 +4,17 @@
 
 #include <AP_HAL/AP_HAL.h>
 #include "AP_KSTCAN.h"
-#include <AP_Param/AP_Param.h>
 #include <AP_CANManager/AP_CANManager.h>
-#include <SRV_Channel/SRV_Channel.h>
 #include <stdio.h>
-#include <GCS_MAVLink/GCS.h>
 
 extern const AP_HAL::HAL &hal;
 
 #if HAL_KST_CAN_ENABLE
 
 #if HAL_CANMANAGER_ENABLED
-#define debug_can(lvl, fmt, args...) \
-    AP::can().log_text(lvl, "KSTCAN_SRV", fmt, ##args)
+#define debug_can(level_debug, fmt, args...) do { AP::can().log_text(level_debug, "KST_CAN", fmt, ##args); } while (0)
 #else
-#define debug_can(lvl, fmt, args...)
+#define debug_can(level_debug, fmt, args...)
 #endif
 
 const AP_Param::GroupInfo AP_KSTCAN::var_info[] = {
@@ -83,7 +79,7 @@ bool AP_KSTCAN::add_interface(AP_HAL::CANIface *can_iface)
 void AP_KSTCAN::init(uint8_t driver_index, bool /*enable_filters*/)
 {
     _driver_index = driver_index;
-    snprintf(_thread_name, sizeof(_thread_name), "KSTCAN_%u", driver_index);
+    debug_can(AP_CANManager::LOG_DEBUG, "KST_CAN: starting init\n\r");
 
     if (_initialized) {
         debug_can(AP_CANManager::LOG_ERROR, "already initialized\n\r");
@@ -93,11 +89,15 @@ void AP_KSTCAN::init(uint8_t driver_index, bool /*enable_filters*/)
     if (!hal.scheduler->thread_create(
             FUNCTOR_BIND_MEMBER(&AP_KSTCAN::loop, void),
             _thread_name, 4096,
-            AP_HAL::Scheduler::PRIORITY_CAN, 0)) {
+            AP_HAL::Scheduler::PRIORITY_CAN, 1)) {
         debug_can(AP_CANManager::LOG_ERROR, "failed to create thread\n\r");
         return;
     }
     _initialized = true;
+
+    snprintf(_thread_name, sizeof(_thread_name), "KST_CAN%u", driver_index);
+
+    debug_can(AP_CANManager::LOG_DEBUG, "KST_CAN: init done\n\r");
 }
 
 void AP_KSTCAN::loop()

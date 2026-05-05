@@ -13,6 +13,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "AP_KSTCAN/AP_KSTCAN.h"
 #include <AP_HAL/AP_HAL.h>
 
 #if HAL_MAX_CAN_PROTOCOL_DRIVERS && HAL_CANMANAGER_ENABLED
@@ -47,6 +48,12 @@ const AP_Param::GroupInfo AP_CANManager::CANDriver_Params::var_info[] = {
     // @Group: PC_
     // @Path: ../AP_PiccoloCAN/AP_PiccoloCAN.cpp
     AP_SUBGROUPPTR(_piccolocan, "PC_", 5, AP_CANManager::CANDriver_Params, AP_PiccoloCAN),
+#endif
+
+#if HAL_KST_CAN_ENABLE
+    // @Group: KC_
+    // @Path: ../AP_KASTCAN/AP_KSTCAN.cpp
+    AP_SUBGROUPPTR(_kstcan, "KC_", 7, AP_CANManager::CANDriver_Params, AP_KSTCAN),
 #endif
 
     // @Param: PROTOCOL2
