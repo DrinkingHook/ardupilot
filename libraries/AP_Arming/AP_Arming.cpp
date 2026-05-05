@@ -66,6 +66,7 @@
   #include <AP_Vehicle/AP_Vehicle_Type.h>
 
   #include <AP_PiccoloCAN/AP_PiccoloCAN.h>
+#include <AP_KSTCAN/AP_KSTCAN.h>
   #include <AP_DroneCAN/AP_DroneCAN.h>
 #endif
 
@@ -1288,6 +1289,16 @@ bool AP_Arming::can_checks(bool report)
                 case AP_CAN::Protocol::None:
                 case AP_CAN::Protocol::Scripting:
                 case AP_CAN::Protocol::Scripting2:
+#if HAL_KST_CAN_ENABLE
+                case AP_CAN::Protocol::KSTCAN: {
+                    AP_KSTCAN *ap_kstcan = AP_KSTCAN::get_pcan(i);
+                    if (ap_kstcan != nullptr && !ap_kstcan->pre_arm_check(fail_msg, ARRAY_SIZE(fail_msg))) {
+                        check_failed(ARMING_CHECK_SYSTEM, report, "KSTCAN: %s", fail_msg);
+                        return false;
+                    }
+                    break;
+                }
+#endif
                 case AP_CAN::Protocol::KDECAN:
                 case AP_CAN::Protocol::PrerotaingCan:
 
