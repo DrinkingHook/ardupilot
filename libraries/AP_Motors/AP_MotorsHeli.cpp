@@ -414,7 +414,7 @@ void AP_MotorsHeli::output_logic()
             if (_spool_desired == DesiredSpoolState::SHUT_DOWN || _heliflags.Pre_rotate_stop) {
                 _spool_state = SpoolState::SHUT_DOWN;
             } else if (_spool_desired == DesiredSpoolState::Pre_rotate) {
-                if (_heliflags.Pre_rotae_again == true) {
+                if (_heliflags.Pre_rotae_again == true && get_prerotaing()) {
                     _pre_ramp_start_us = AP_HAL::micros64();   // 记录预转开始的时刻
                     _heliflags.Pre_rotate_finshed = false;     // 确保标志重置
                     _heliflags.Pre_rotae_again = false;

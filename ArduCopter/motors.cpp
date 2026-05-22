@@ -97,7 +97,7 @@ void Copter::auto_disarm_check()
     }
 
     // if the rotor is still spinning, don't initiate auto disarm
-    if (motors->get_spool_state() > AP_Motors::SpoolState::GROUND_IDLE) {
+    if (motors->get_spool_state() > AP_Motors::SpoolState::GROUND_IDLE || motors->get_spool_state() == AP_Motors::SpoolState::Pre_rotate) {
         auto_disarm_begin = tnow_ms;
         return;
     }
