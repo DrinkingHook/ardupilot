@@ -300,15 +300,15 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         AP_EFI::is_healthy(),
         state.ecu_index,
         state.engine_speed_rpm,
-        state.estimated_consumed_fuel_volume_cm3,//油位
+        state.estimated_consumed_fuel_volume_cm3,
         state.fuel_consumption_rate_cm3pm,
         state.engine_load_percent,
-        state.throttle_position_percent,//空燃比
+        state.throttle_position_percent,
         state.spark_dwell_time_ms,
-        state.oil_pressure, //滑油压力
-        state.intake_manifold_pressure_kpa,// 涡轮压力
-        state.intake_manifold_temperature,// 水温
-        state.oil_temperature,// 油温
+        state.oil_pressure,
+        state.intake_manifold_pressure_kpa,
+        state.intake_manifold_temperature,
+        state.oil_temperature,
         state.cylinder_status.ignition_timing_deg,
         state.cylinder_status.injection_time_ms,
         KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature),
@@ -316,6 +316,33 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         state.pt_compensation,
         0,
         0);
+}
+
+/*
+  send ENGINE_STATUS
+ */
+void AP_EFI::send_mavlink_engine_status(mavlink_channel_t chan)
+{
+    if (!backend) {
+        return;
+    }
+    uint16_t egt_cdeg[4] = {
+        uint16_t(KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature) * 100.0f),
+        uint16_t(KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature2) * 100.0f),
+        uint16_t(KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature) * 100.0f),
+        uint16_t(KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature2) * 100.0f),
+    };
+
+    mavlink_msg_engine_status_send(
+        chan,
+        uint16_t(state.oil_pressure * 100.0f),                              // oil_pressure (cPa)
+        uint16_t(state.fuel_pressure * 100.0f),                             // lube_pressure (cPa)
+        uint16_t(state.estimated_consumed_fuel_volume_cm3 / 10.0f),         // fuel_quantity (cL)
+        uint16_t(KELVIN_TO_C(state.coolant_temperature) * 100.0f),          // coolant_temp (cdegC)
+        uint16_t(KELVIN_TO_C(state.oil_temperature) * 100.0f),              // oil_temp (cdegC)
+        uint16_t(state.intake_manifold_pressure_kpa * 100.0f),              // turbo_pressure (cPa)
+        egt_cdeg,                                                            // egt (cdegC)
+        state.cylinder_status.lambda_coefficient);                           // lambda
 }
 
 // get a copy of state structure

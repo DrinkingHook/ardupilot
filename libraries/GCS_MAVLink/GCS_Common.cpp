@@ -1121,6 +1121,7 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
         { MAVLINK_MSG_ID_AUTOPILOT_VERSION,     MSG_AUTOPILOT_VERSION},
 #if HAL_EFI_ENABLED
         { MAVLINK_MSG_ID_EFI_STATUS,            MSG_EFI_STATUS},
+        { MAVLINK_MSG_ID_ENGINE_STATUS,         MSG_ENGINE_STATUS},
 #endif
 #if HAL_GENERATOR_ENABLED
         { MAVLINK_MSG_ID_GENERATOR_STATUS,      MSG_GENERATOR_STATUS},
@@ -6418,11 +6419,19 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
 
 // 以Mavlink形式转发EFI数据
 #if HAL_EFI_ENABLED
-    case MSG_EFI_STATUS: {
-        CHECK_PAYLOAD_SIZE(EFI_STATUS);
+    // case MSG_EFI_STATUS: {
+    //     CHECK_PAYLOAD_SIZE(EFI_STATUS);
+    //     AP_EFI *efi = AP::EFI();
+    //     if (efi) {
+    //         efi->send_mavlink_status(chan);
+    //     }
+    //     break;
+    // }
+    case MSG_ENGINE_STATUS: {
+        CHECK_PAYLOAD_SIZE(ENGINE_STATUS);
         AP_EFI *efi = AP::EFI();
         if (efi) {
-            efi->send_mavlink_status(chan);
+            efi->send_mavlink_engine_status(chan);
         }
         break;
     }

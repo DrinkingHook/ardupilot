@@ -109,6 +109,8 @@ public:
 
     // send EFI_STATUS
     void send_mavlink_status(mavlink_channel_t chan);
+    // send ENGINE_STATUS
+    void send_mavlink_engine_status(mavlink_channel_t chan);
 
 #if AP_SCRIPTING_ENABLED
     AP_EFI_Backend* get_backend(uint8_t idx) { return idx==0?backend:nullptr; }
