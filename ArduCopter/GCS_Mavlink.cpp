@@ -580,6 +580,7 @@ static const ap_message STREAM_EXTRA3_msgs[] = {
 #endif
 #if HAL_EFI_ENABLED
     MSG_EFI_STATUS,
+    MSG_ENGINE_STATUS,
 #endif
 };
 static const ap_message STREAM_PARAMS_msgs[] = {
