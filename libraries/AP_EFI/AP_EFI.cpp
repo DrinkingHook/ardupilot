@@ -21,6 +21,7 @@
 #include "AP_EFI_Serial_Lutan.h"
 #include "AP_EFI_NWPMU.h"
 #include "AP_EFI_DroneCAN.h"
+#include "AP_ENGINE_DroneCan.h"
 #include "AP_EFI_Currawong_ECU.h"
 #include "AP_EFI_Serial_Hirth.h"
 #include "AP_EFI_Scripting.h"
@@ -114,7 +115,8 @@ void AP_EFI::init(void)
 #endif
 #if AP_EFI_DRONECAN_ENABLED
     case Type::DroneCAN:
-        backend = NEW_NOTHROW AP_EFI_DroneCAN(*this);
+        // backend = NEW_NOTHROW AP_EFI_DroneCAN(*this);
+        backend = NEW_NOTHROW AP_ENGINE_DroneCan(*this);
         break;
 #endif
 #if AP_EFI_CURRAWONG_ECU_ENABLED
@@ -335,12 +337,12 @@ void AP_EFI::send_mavlink_engine_status(mavlink_channel_t chan)
 
     mavlink_msg_engine_status_send(
         chan,
-        uint16_t(state.oil_pressure * 100.0f),                              // oil_pressure (cPa)
-        uint16_t(state.fuel_pressure * 100.0f),                             // lube_pressure (cPa)
-        uint16_t(state.estimated_consumed_fuel_volume_cm3 / 10.0f),         // fuel_quantity (cL)
-        uint16_t(KELVIN_TO_C(state.coolant_temperature) * 100.0f),          // coolant_temp (cdegC)
-        uint16_t(KELVIN_TO_C(state.oil_temperature) * 100.0f),              // oil_temp (cdegC)
-        uint16_t(state.intake_manifold_pressure_kpa * 100.0f),              // turbo_pressure (cPa)
+        state.oil_pressure,                              // oil_pressure (cPa)
+        state.fuel_pressure,                             // lube_pressure (cPa)
+        state.estimated_consumed_fuel_volume_cm3,         // fuel_quantity (cL)
+        KELVIN_TO_C(state.coolant_temperature),          // coolant_temp (cdegC)
+        KELVIN_TO_C(state.oil_temperature),              // oil_temp (cdegC)
+        state.intake_manifold_pressure_kpa,              // turbo_pressure (cPa)
         egt_cdeg,                                                            // egt (cdegC)
         state.cylinder_status.lambda_coefficient);                           // lambda
 }
