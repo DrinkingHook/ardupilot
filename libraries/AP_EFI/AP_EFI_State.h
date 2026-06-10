@@ -123,6 +123,10 @@ struct Cylinder_Status {
     // 2nd cylinder exhaust gas temperature, 0 if not applicable
     float exhaust_gas_temperature2;
 
+    float exhaust_gas_temperature3;
+
+    float exhaust_gas_temperature4;
+
     // Estimated lambda coefficient (dimensionless ratio)
     // Useful for monitoring and tuning purposes.
     float lambda_coefficient;
