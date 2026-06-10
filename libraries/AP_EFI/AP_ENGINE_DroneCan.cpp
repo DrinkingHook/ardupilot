@@ -61,6 +61,8 @@ void AP_ENGINE_DroneCan::handle_status(const ardupilot_equipment_engine_Status &
     istate.intake_manifold_pressure_kpa = pkt.turbo_pressure;
     istate.cylinder_status.exhaust_gas_temperature = pkt.egt[0];
     istate.cylinder_status.exhaust_gas_temperature2 = pkt.egt[1];
+    istate.cylinder_status.exhaust_gas_temperature3 = pkt.egt[2];
+    istate.cylinder_status.exhaust_gas_temperature4 = pkt.egt[3];
     istate.cylinder_status.lambda_coefficient = pkt.lambda;
 
     // Required for healthy message

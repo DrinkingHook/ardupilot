@@ -278,24 +278,24 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         return;
     }
 
-    // float ignition_voltage;
-    // if (isnan(state.ignition_voltage) ||
-    //     is_equal(state.ignition_voltage, -1.0f)) {
-    //     // zero means "unknown" in mavlink, 0.0001 means 0 volts
-    //     ignition_voltage = 0;
-    // } else if (is_zero(state.ignition_voltage)) {
-    //     // zero means "unknown" in mavlink, 0.0001 means 0 volts
-    //     ignition_voltage = 0.0001f;
-    // } else {
-    //     ignition_voltage = state.ignition_voltage;
-    // };
+    float ignition_voltage;
+    if (isnan(state.ignition_voltage) ||
+        is_equal(state.ignition_voltage, -1.0f)) {
+        // zero means "unknown" in mavlink, 0.0001 means 0 volts
+        ignition_voltage = 0;
+    } else if (is_zero(state.ignition_voltage)) {
+        // zero means "unknown" in mavlink, 0.0001 means 0 volts
+        ignition_voltage = 0.0001f;
+    } else {
+        ignition_voltage = state.ignition_voltage;
+    };
 
     // If fuel pressure is supported, but is exactly zero, shift it to 0.0001
     // to indicate that it is supported.
-    // float fuel_pressure = state.fuel_pressure;
-    // if (is_zero(fuel_pressure) && state.fuel_pressure_status != Fuel_Pressure_Status::NOT_SUPPORTED) {
-    //     fuel_pressure = 0.0001;
-    // }
+    float fuel_pressure = state.fuel_pressure;
+    if (is_zero(fuel_pressure) && state.fuel_pressure_status != Fuel_Pressure_Status::NOT_SUPPORTED) {
+        fuel_pressure = 0.0001;
+    }
 
     mavlink_msg_efi_status_send(
         chan,
@@ -307,17 +307,18 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         state.engine_load_percent,
         state.throttle_position_percent,
         state.spark_dwell_time_ms,
-        state.oil_pressure,
+        state.atmospheric_pressure_kpa,
         state.intake_manifold_pressure_kpa,
-        state.intake_manifold_temperature,
-        state.oil_temperature,
+        KELVIN_TO_C(state.intake_manifold_temperature),
+        KELVIN_TO_C(state.cylinder_status.cylinder_head_temperature),
         state.cylinder_status.ignition_timing_deg,
         state.cylinder_status.injection_time_ms,
         KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature),
         state.throttle_out,
         state.pt_compensation,
-        0,
-        0);
+        ignition_voltage,
+        fuel_pressure
+        );
 }
 
 /*
@@ -329,10 +330,10 @@ void AP_EFI::send_mavlink_engine_status(mavlink_channel_t chan)
         return;
     }
     uint16_t egt_cdeg[4] = {
-        uint16_t(KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature) * 100.0f),
-        uint16_t(KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature2) * 100.0f),
-        uint16_t(KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature) * 100.0f),
-        uint16_t(KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature2) * 100.0f),
+        uint16_t(state.cylinder_status.exhaust_gas_temperature),
+        uint16_t(state.cylinder_status.exhaust_gas_temperature2),
+        uint16_t(state.cylinder_status.exhaust_gas_temperature3),
+        uint16_t(state.cylinder_status.exhaust_gas_temperature4),
     };
 
     mavlink_msg_engine_status_send(
@@ -340,8 +341,8 @@ void AP_EFI::send_mavlink_engine_status(mavlink_channel_t chan)
         state.oil_pressure,                              // oil_pressure (cPa)
         state.fuel_pressure,                             // lube_pressure (cPa)
         state.estimated_consumed_fuel_volume_cm3,         // fuel_quantity (cL)
-        KELVIN_TO_C(state.coolant_temperature),          // coolant_temp (cdegC)
-        KELVIN_TO_C(state.oil_temperature),              // oil_temp (cdegC)
+        state.coolant_temperature,          // coolant_temp (cdegC)
+        state.oil_temperature,              // oil_temp (cdegC)
         state.intake_manifold_pressure_kpa,              // turbo_pressure (cPa)
         egt_cdeg,                                                            // egt (cdegC)
         state.cylinder_status.lambda_coefficient);                           // lambda
