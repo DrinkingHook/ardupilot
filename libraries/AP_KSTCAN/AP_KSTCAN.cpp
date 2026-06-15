@@ -80,11 +80,12 @@ void AP_KSTCAN::init(uint8_t driver_index, bool /*enable_filters*/)
 {
     _driver_index = driver_index;
     debug_can(AP_CANManager::LOG_DEBUG, "KST_CAN: starting init\n\r");
-
     if (_initialized) {
         debug_can(AP_CANManager::LOG_ERROR, "already initialized\n\r");
         return;
     }
+
+    snprintf(_thread_name, sizeof(_thread_name), "KST_CAN%u", driver_index);
 
     if (!hal.scheduler->thread_create(
             FUNCTOR_BIND_MEMBER(&AP_KSTCAN::loop, void),
@@ -93,16 +94,14 @@ void AP_KSTCAN::init(uint8_t driver_index, bool /*enable_filters*/)
         debug_can(AP_CANManager::LOG_ERROR, "failed to create thread\n\r");
         return;
     }
+
     _initialized = true;
-
-    snprintf(_thread_name, sizeof(_thread_name), "KST_CAN%u", driver_index);
-
     debug_can(AP_CANManager::LOG_DEBUG, "KST_CAN: init done\n\r");
 }
 
 void AP_KSTCAN::loop()
 {
-    uint16_t servo_tx_counter = 0;
+    uint32_t last_send_us = AP_HAL::micros();
 
     while (true) {
         if (!_initialized) {
@@ -111,12 +110,11 @@ void AP_KSTCAN::loop()
         }
 
         _srv_hz.set(constrain_int16(_srv_hz, KST_MSG_RATE_HZ_MIN, KST_MSG_RATE_HZ_MAX));
-        const uint16_t servo_rate_ms = 1000 / _srv_hz;
+        const uint32_t servo_period_us = 1000000UL / _srv_hz;
 
-        hal.scheduler->delay_microseconds(1000);
-
-        if (servo_tx_counter++ >= servo_rate_ms) {
-            servo_tx_counter = 0;
+        const uint32_t now_us = AP_HAL::micros();
+        if (now_us - last_send_us >= servo_period_us) {
+            last_send_us = now_us;
             send_servo_messages();
         }
 
@@ -126,6 +124,8 @@ void AP_KSTCAN::loop()
             const uint32_t id = rx_frame.id & 0x7FFU;
             if (id >= 0x581U && id <= 0x590U) { handle_servo_message(rx_frame); }
         }
+
+        hal.scheduler->delay_microseconds(1000);
     }
 }
 
