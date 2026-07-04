@@ -7,6 +7,7 @@ float16 lube_pressure            # [kPa] Lubricating oil pressure
 float16 fuel_quantity            # [L] Fuel quantity
 float16 coolant_temp             # [degC] Coolant/water temperature
 float16 oil_temp                 # [degC] Oil temperature
+float16 gearbox_oil_temp         # [degC] Gearbox oil temperature
 float16 turbo_pressure           # [kPa] Turbocharger boost pressure
 float16[4] egt                   # [degC] Exhaust gas temperatures for 4 cylinders
 float16 lambda                   # [ratio] Lambda (1.0 = stoichiometric)

@@ -180,6 +180,9 @@ struct EFI_State {
     // Oil temperature (kelvin)
     float oil_temperature;
 
+    // Gearbox oil temperature (kelvin)
+    float gearbox_oil_temperature;
+
     // Fuel pressure (kilopascal)
     float fuel_pressure;
 

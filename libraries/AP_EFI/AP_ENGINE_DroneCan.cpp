@@ -58,6 +58,7 @@ void AP_ENGINE_DroneCan::handle_status(const ardupilot_equipment_engine_Status &
     istate.estimated_consumed_fuel_volume_cm3 = pkt.fuel_quantity;
     istate.coolant_temperature = pkt.coolant_temp;
     istate.oil_temperature = pkt.oil_temp;
+    istate.gearbox_oil_temperature = pkt.gearbox_oil_temp;
     istate.intake_manifold_pressure_kpa = pkt.turbo_pressure;
     istate.cylinder_status.exhaust_gas_temperature = pkt.egt[0];
     istate.cylinder_status.exhaust_gas_temperature2 = pkt.egt[1];

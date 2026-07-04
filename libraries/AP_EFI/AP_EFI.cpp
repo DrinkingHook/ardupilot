@@ -345,7 +345,8 @@ void AP_EFI::send_mavlink_engine_status(mavlink_channel_t chan)
         state.oil_temperature,              // oil_temp (cdegC)
         state.intake_manifold_pressure_kpa,              // turbo_pressure (cPa)
         egt_cdeg,                                                            // egt (cdegC)
-        state.cylinder_status.lambda_coefficient);                           // lambda
+        state.cylinder_status.lambda_coefficient,                           // lambda
+        state.gearbox_oil_temperature);                  // gearbox_oil_temp (cdegC)
 }
 
 // get a copy of state structure
