@@ -50,6 +50,7 @@
 #include <AP_VisualOdom/AP_VisualOdom.h>
 #include <AP_Baro/AP_Baro.h>
 #include <AP_EFI/AP_EFI.h>
+#include <AP_KstServo/AP_KstServo_DroneCan.h>
 #include <AP_Proximity/AP_Proximity.h>
 #include <AP_Scripting/AP_Scripting.h>
 #include <SRV_Channel/SRV_Channel.h>
@@ -1121,6 +1122,9 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
         { MAVLINK_MSG_ID_AUTOPILOT_VERSION,     MSG_AUTOPILOT_VERSION},
 #if HAL_EFI_ENABLED
         { MAVLINK_MSG_ID_ENGINE_STATUS,         MSG_ENGINE_STATUS},
+#endif
+#if HAL_ENABLE_DRONECAN_DRIVERS
+        { MAVLINK_MSG_ID_SERVO_STATUS,          MSG_SERVO_STATUS},
 #endif
 #if HAL_GENERATOR_ENABLED
         { MAVLINK_MSG_ID_GENERATOR_STATUS,      MSG_GENERATOR_STATUS},
@@ -6423,6 +6427,17 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         AP_EFI *efi = AP::EFI();
         if (efi) {
             efi->send_mavlink_engine_status(chan);
+        }
+        break;
+    }
+#endif
+
+#if HAL_ENABLE_DRONECAN_DRIVERS
+    case MSG_SERVO_STATUS: {
+        CHECK_PAYLOAD_SIZE(SERVO_STATUS);
+        AP_KstServo_DroneCan *servo = AP_KstServo_DroneCan::get_instance();
+        if (servo) {
+            servo->send_mavlink_servo_status(chan);
         }
         break;
     }

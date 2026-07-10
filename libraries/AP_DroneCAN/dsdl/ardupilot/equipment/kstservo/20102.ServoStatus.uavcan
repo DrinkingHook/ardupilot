@@ -1,0 +1,8 @@
+#
+# Servo status: voltage, current and power for each servo channel.
+#
+
+uint8 count                             # Number of active servos
+uint16[8] voltage                       # [cV] Servo voltage (centivolts)
+uint16[8] current                       # [cA] Servo current (centiamps)
+uint16[8] power                         # [cW] Servo power (centiwatts)
