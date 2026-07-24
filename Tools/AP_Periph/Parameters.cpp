@@ -589,7 +589,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     GOBJECT(kdecan, "KDE_",   AP_KDECAN),
 #endif
 
-#if AP_PrerotaingCan_ENABLED
+#if AP_PREROTAINGCAN_ENABLED
     GOBJECT(prerotaingcan,"Pre", AP_PrerotaingCan ),
 #endif
 #if defined(HAL_PERIPH_ENABLE_ESC_APD)

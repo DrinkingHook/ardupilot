@@ -518,7 +518,7 @@ void SRV_Channels::push()
     }
 #endif
 
-#if AP_PrerotaingCan_ENABLED
+#if AP_PREROTAINGCAN_ENABLED
     if (AP::PrerotaingCan() != nullptr) {
         AP::PrerotaingCan()->update();
     }

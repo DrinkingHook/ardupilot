@@ -22,7 +22,7 @@
 
 #include <AP_PrerotaingCan/AP_PrerotaingCan_config.h>
 
-#if AP_PrerotaingCan_ENABLED
+#if AP_PREROTAINGCAN_ENABLED
 #include <AP_HAL/AP_HAL.h>
 
 #include <AP_CANManager/AP_CANSensor.h>
@@ -100,4 +100,4 @@ namespace AP {
     AP_PrerotaingCan *PrerotaingCan();
 };
 
-#endif // AP_PrerotaingCan_ENABLED
+#endif // AP_PREROTAINGCAN_ENABLED

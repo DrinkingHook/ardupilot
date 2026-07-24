@@ -216,7 +216,7 @@ void AP_Periph_FW::init()
     kdecan.init();
 #endif
 
-#if AP_PrerotaingCan_ENABLED
+#if AP_PREROTAINGCAN_ENABLED
     prerotaingcan.init();
 #endif
 

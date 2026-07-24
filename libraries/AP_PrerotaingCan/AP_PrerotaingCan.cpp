@@ -20,7 +20,7 @@
 
 #include "AP_PrerotaingCan.h"
 
-#if AP_PrerotaingCan_ENABLED
+#if AP_PREROTAINGCAN_ENABLED
 #include <stdio.h>
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_HAL/utility/sparse-endian.h>
@@ -188,4 +188,4 @@ AP_PrerotaingCan *PrerotaingCan()
 }
 };
 
-#endif // AP_PrerotaingCan_ENABLED
+#endif // AP_PREROTAINGCAN_ENABLED

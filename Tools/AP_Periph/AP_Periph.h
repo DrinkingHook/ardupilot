@@ -335,7 +335,7 @@ public:
     AP_KDECAN kdecan;
 #endif
 
-#if AP_PrerotaingCan_ENABLED
+#if AP_PREROTAINGCAN_ENABLED
     AP_PrerotaingCan prerotaingcan;
 #endif
     
