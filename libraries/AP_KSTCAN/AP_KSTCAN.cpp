@@ -194,12 +194,19 @@ void AP_KSTCAN::send_servo_messages()
         if (!is_servo_channel_active(ii)) {
             continue;
         }
+        // Snapshot the latest command under the lock, then release it before the
+        // potentially blocking write so update() in the main loop is not stalled.
         // Always send - servo response sets present=true for pre-arm check
-        uint16_t pwm = _servos[ii].command;
+        uint16_t pwm;
+        {
+            WITH_SEMAPHORE(_telem_sem);
+            pwm = _servos[ii].command;
+        }
         const SRV_Channel::Aux_servo_function_t fn = SRV_Channels::channel_function(ii);
         SRV_Channels::get_output_pwm(fn, pwm);
         build_position_cmd(tx_frame, ii, pwm);
         if (write_frame(tx_frame, 1000)) {
+            WITH_SEMAPHORE(_telem_sem);
             _servos[ii].newCommand = false;
         }
     }
@@ -230,6 +237,7 @@ void AP_KSTCAN::update()
         const SRV_Channel::Aux_servo_function_t fn = SRV_Channels::channel_function(ii);
         uint16_t pwm = 0;
         if (SRV_Channels::get_output_pwm(fn, pwm)) {
+            WITH_SEMAPHORE(_telem_sem);
             _servos[ii].command = pwm;
             _servos[ii].newCommand = true;
         }
