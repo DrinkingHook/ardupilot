@@ -4,6 +4,7 @@
 
 #include "AP_Gripper_Servo.h"
 #include "AP_Gripper_EPM.h"
+#include "AP_Gripper_DroneCAN.h"
 
 extern const AP_HAL::HAL& hal;
 
@@ -26,7 +27,7 @@ const AP_Param::GroupInfo AP_Gripper::var_info[] = {
     // @DisplayName: Gripper Type
     // @Description: Gripper enable/disable
     // @User: Standard
-    // @Values: 0:None,1:Servo,2:EPM
+    // @Values: 0:None,1:Servo,2:EPM,3:DroneCAN
     AP_GROUPINFO("TYPE", 1, AP_Gripper, config.type, 0),
 
     // @Param: GRAB
@@ -119,6 +120,11 @@ void AP_Gripper::init()
 #if AP_GRIPPER_EPM_ENABLED
     case 2:
         backend = NEW_NOTHROW AP_Gripper_EPM(config);
+        break;
+#endif
+#if AP_GRIPPER_DRONECAN_ENABLED
+    case 3:
+        backend = NEW_NOTHROW AP_Gripper_DroneCAN(config);
         break;
 #endif
     default:

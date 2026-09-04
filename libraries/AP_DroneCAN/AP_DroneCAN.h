@@ -36,6 +36,7 @@
 #include <dronecan_msgs.h>
 #include <AP_SerialManager/AP_SerialManager_config.h>
 #include <AP_Relay/AP_Relay_config.h>
+#include <AP_Gripper/AP_Gripper_config.h>
 
 #ifndef DRONECAN_SRV_NUMBER
 #define DRONECAN_SRV_NUMBER NUM_SERVO_CHANNELS
@@ -175,6 +176,11 @@ public:
     // Hardpoint for relay
     // Needs to be public so relay can edge trigger as well as streaming
     Canard::Publisher<uavcan_equipment_hardpoint_Command> relay_hardpoint{canard_iface};
+#endif
+
+#if AP_GRIPPER_DRONECAN_ENABLED
+    // Hardpoint for gripper
+    Canard::Publisher<uavcan_equipment_hardpoint_Command> gripper_hardpoint{canard_iface};
 #endif
 
 #if AP_SCRIPTING_ENABLED

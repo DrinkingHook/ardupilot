@@ -477,6 +477,11 @@ void AP_DroneCAN::init(uint8_t driver_index, bool enable_filters)
     relay_hardpoint.set_priority(CANARD_TRANSFER_PRIORITY_LOW);
 #endif
 
+#if AP_GRIPPER_DRONECAN_ENABLED
+    gripper_hardpoint.set_timeout_ms(20);
+    gripper_hardpoint.set_priority(CANARD_TRANSFER_PRIORITY_LOW);
+#endif
+
     param_save_client.set_timeout_ms(20);
     param_save_client.set_priority(CANARD_TRANSFER_PRIORITY_LOW);
 
