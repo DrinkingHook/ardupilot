@@ -5,6 +5,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include "AP_KSTCAN.h"
 #include <AP_CANManager/AP_CANManager.h>
+#include <GCS_MAVLink/GCS.h>
 #include <stdio.h>
 
 extern const AP_HAL::HAL &hal;
@@ -39,7 +40,9 @@ const AP_Param::GroupInfo AP_KSTCAN::var_info[] = {
 AP_KSTCAN::AP_KSTCAN() :
     _initialized(false),
     _driver_index(0),
-    _can_iface(nullptr)
+    _can_iface(nullptr),
+    _poll_state(0),
+    _poll_cmd_sent_ms(0)
 {
     AP_Param::setup_object_defaults(this, var_info);
     memset(_thread_name, 0, sizeof(_thread_name));
@@ -118,12 +121,9 @@ void AP_KSTCAN::loop()
             send_servo_messages();
         }
 
-        AP_HAL::CANFrame rx_frame {};
-        while (read_frame(rx_frame, 0)) {
-            if (rx_frame.id & AP_HAL::CANFrame::FlagEFF) { continue; }
-            const uint32_t id = rx_frame.id & 0x7FFU;
-            if (id >= 0x581U && id <= 0x590U) { handle_servo_message(rx_frame); }
-        }
+        // Non-blocking status query: one step per iteration
+        // Also handles write-command responses (present/enabled) via RSP_BASE_ID
+        status_poll();
 
         hal.scheduler->delay_microseconds(1000);
     }
@@ -174,14 +174,173 @@ void AP_KSTCAN::build_position_cmd(AP_HAL::CANFrame &frame, uint8_t chan, uint16
     const int16_t raw     = pwm_to_kst_raw(pwm_us);
     frame.id      = KST_BASE_ID + node_id;
     frame.dlc     = 8;
-    frame.data[0] = KST_CMD_BYTE0;
-    frame.data[1] = KST_CMD_BYTE1;
-    frame.data[2] = KST_CMD_BYTE2;
-    frame.data[3] = KST_CMD_BYTE3;
+    frame.data[0] = KST_CMD_BYTE0;    // 0x22 = SDO write
+    frame.data[1] = KST_CMD_BYTE1;    // 0x03 = index low
+    frame.data[2] = KST_CMD_BYTE2;    // 0x60 = index high
+    frame.data[3] = KST_CMD_BYTE3;    // 0x00 = subindex
     frame.data[4] = static_cast<uint8_t>(raw & 0xFF);
     frame.data[5] = static_cast<uint8_t>((raw >> 8) & 0xFF);
     frame.data[6] = 0x00;
     frame.data[7] = 0x00;
+}
+
+void AP_KSTCAN::build_read_cmd(AP_HAL::CANFrame &frame, uint8_t node_id, uint16_t index, uint8_t subindex)
+{
+    frame.id      = KST_BASE_ID + node_id;
+    frame.dlc     = 8;
+    frame.data[0] = 0x40;   // SDO read request
+    frame.data[1] = static_cast<uint8_t>(index & 0xFF);
+    frame.data[2] = static_cast<uint8_t>((index >> 8) & 0xFF);
+    frame.data[3] = subindex;
+    frame.data[4] = 0x00;
+    frame.data[5] = 0x00;
+    frame.data[6] = 0x00;
+    frame.data[7] = 0x00;
+}
+
+/*
+ * Non-blocking status poll state machine.
+ *
+ * Alternates between reading position (obj 0x6002) and status (obj 0x6005)
+ * for each active servo, one step per loop() call.
+ *
+ * State encoding: state = servo_idx * 2 + cmd_idx
+ *   cmd_idx 0 = read position, cmd_idx 1 = read status (current + temperature)
+ *
+ * Matches the reference servo_kst_bus_poll() design from the bare-metal library.
+ */
+void AP_KSTCAN::status_poll()
+{
+    const uint8_t total = KST_POLL_TOTAL_STEPS;
+    const uint8_t servo_idx = _poll_state / KST_POLL_CMDS_PER_SERVO;
+    const uint8_t cmd_idx   = _poll_state % KST_POLL_CMDS_PER_SERVO;
+
+    // Step 1: If idle, send the command for this state
+    if (_poll_cmd_sent_ms == 0) {
+        // Only query servos that are active (in bitmask)
+        if (!is_servo_channel_active(servo_idx)) {
+            // Skip inactive servo, advance to next
+            _poll_state++;
+            if (_poll_state >= total) {
+                _poll_state = 0;
+            }
+            return;
+        }
+
+        const uint8_t node_id = servo_idx + 1;
+        AP_HAL::CANFrame tx_frame {};
+
+        if (cmd_idx == 0) {
+            // Read position: obj 0x6002 sub 0
+            build_read_cmd(tx_frame, node_id, 0x6002, 0x00);
+        } else {
+            // Read status: obj 0x6005 sub 0 (current + temperature)
+            build_read_cmd(tx_frame, node_id, 0x6005, 0x00);
+        }
+
+        if (write_frame(tx_frame, 1000)) {
+            _poll_cmd_sent_ms = AP_HAL::millis();
+        } else {
+            // Send failed, skip to next step
+            _poll_state++;
+            if (_poll_state >= total) {
+                _poll_state = 0;
+            }
+        }
+        return;
+    }
+
+    // Step 2: Check for response with timeout
+    // Also drains write-command responses (from send_servo_messages) and
+    // SDO error frames so they don't accumulate in the CAN buffer.
+    const uint32_t now_ms = AP_HAL::millis();
+    const uint8_t node_id = servo_idx + 1;
+    const uint32_t expect_id = KST_RSP_BASE_ID + node_id;
+
+    AP_HAL::CANFrame rx_frame {};
+    bool matched = false;
+
+    while (read_frame(rx_frame, 0)) {
+        if (rx_frame.id & AP_HAL::CANFrame::FlagEFF) { continue; }
+        const uint32_t id = rx_frame.id & 0x7FFU;
+        if (id != expect_id) { continue; }
+        if (rx_frame.dlc < 4) { continue; }
+
+        if (cmd_idx == 0) {
+            // Expect position response prefix: {0x4B, 0x02, 0x60, 0x00}
+            if (rx_frame.data[0] == 0x4B && rx_frame.data[1] == 0x02 &&
+                rx_frame.data[2] == 0x60 && rx_frame.data[3] == 0x00) {
+                const int16_t raw = static_cast<int16_t>(rx_frame.data[4] | (rx_frame.data[5] << 8));
+                WITH_SEMAPHORE(_telem_sem);
+                _servos[servo_idx].position = raw;
+                _servos[servo_idx].present = true;
+                _servos[servo_idx].enabled = true;
+                _servos[servo_idx].last_rx_us = AP_HAL::micros();
+                matched = true;
+                GCS_SEND_MESSAGE(MSG_KST_SERVO_STATUS);
+            }
+        } else {
+            // Expect status response prefix: {0x43, 0x05, 0x60, 0x00}
+            if (rx_frame.data[0] == 0x43 && rx_frame.data[1] == 0x05 &&
+                rx_frame.data[2] == 0x60 && rx_frame.data[3] == 0x00) {
+                const uint16_t current_raw = static_cast<uint16_t>(rx_frame.data[4] | (rx_frame.data[5] << 8));
+                const int8_t temp_raw = static_cast<int8_t>(rx_frame.data[6]);
+                WITH_SEMAPHORE(_telem_sem);
+                _servos[servo_idx].current = static_cast<int16_t>(current_raw);
+                _servos[servo_idx].temperature = temp_raw;
+                _servos[servo_idx].present = true;
+                _servos[servo_idx].enabled = true;
+                _servos[servo_idx].last_rx_us = AP_HAL::micros();
+                matched = true;
+                GCS_SEND_MESSAGE(MSG_KST_SERVO_STATUS);
+            }
+        }
+
+        if (matched) { break; }
+
+        // Drain unmatched frames from this node (write acks, errors) so
+        // they don't accumulate in the CAN buffer.
+        if (rx_frame.data[0] == 0x60 || rx_frame.data[0] == 0x80) {
+            // Write acknowledgment or SDO error -- just consume it
+            continue;
+        }
+    }
+
+    // If matched, advance immediately. If timeout, also advance.
+    if (matched || (now_ms - _poll_cmd_sent_ms) >= KST_POLL_TIMEOUT_MS) {
+        if (!matched) {
+            WITH_SEMAPHORE(_telem_sem);
+            _servos[servo_idx].present = false;
+        }
+        _poll_cmd_sent_ms = 0;
+        _poll_state++;
+        if (_poll_state >= total) {
+            _poll_state = 0;
+        }
+    }
+}
+
+void AP_KSTCAN::send_mavlink_kst_servo_status(uint8_t chan)
+{
+    int16_t  position[KST_MAX_NUM_SERVO];
+    uint16_t current[KST_MAX_NUM_SERVO];
+    int8_t   temperature[KST_MAX_NUM_SERVO];
+
+    WITH_SEMAPHORE(_telem_sem);
+    for (uint8_t i = 0; i < KST_MAX_NUM_SERVO; i++) {
+        position[i]    = _servos[i].position;
+        current[i]     = _servos[i].current;
+        temperature[i] = _servos[i].temperature;
+    }
+    const uint32_t servo_bm = _srv_bm.get();
+
+    mavlink_msg_kst_servo_status_send(
+        static_cast<mavlink_channel_t>(chan),
+        position,
+        current,
+        temperature,
+        servo_bm
+    );
 }
 
 void AP_KSTCAN::send_servo_messages()

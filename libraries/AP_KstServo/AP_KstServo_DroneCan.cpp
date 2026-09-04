@@ -52,17 +52,27 @@ void AP_KstServo_DroneCan::handle_servo_status(const ardupilot_equipment_kstserv
     }
     state.last_updated_ms = AP_HAL::millis();
 
-    GCS_SEND_MESSAGE(MSG_SERVO_STATUS);
+    GCS_SEND_MESSAGE(MSG_KST_SERVO_STATUS);
 }
 
 void AP_KstServo_DroneCan::send_mavlink_servo_status(mavlink_channel_t chan)
 {
-    mavlink_msg_servo_status_send(
+    int16_t  position[32] = {};
+    uint16_t current[32] = {};
+    int8_t   temperature[32] = {};
+    uint32_t servo_bm = 0;
+
+    for (uint8_t i = 0; i < 8 && i < state.count; i++) {
+        current[i] = state.current[i];
+        servo_bm |= (1U << i);
+    }
+
+    mavlink_msg_kst_servo_status_send(
         chan,
-        state.voltage,
-        state.current,
-        state.power,
-        state.count
+        position,
+        current,
+        temperature,
+        servo_bm
     );
 }
 

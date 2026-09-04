@@ -22,6 +22,7 @@
 #define KST_MAX_NUM_SERVO        32
 
 #define KST_BASE_ID              0x600U
+#define KST_RSP_BASE_ID          0x580U
 #define KST_CMD_BYTE0            0x22
 #define KST_CMD_BYTE1            0x03
 #define KST_CMD_BYTE2            0x60
@@ -30,6 +31,12 @@
 #define KST_PWM_RANGE_US         500
 #define KST_ANGLE_MAX_DEG        100
 #define KST_RAW_SCALE            10
+
+// Status query state machine
+#define KST_POLL_SERVOS_PER_QUERY  KST_MAX_NUM_SERVO
+#define KST_POLL_CMDS_PER_SERVO    2
+#define KST_POLL_TOTAL_STEPS       (KST_POLL_SERVOS_PER_QUERY * KST_POLL_CMDS_PER_SERVO)
+#define KST_POLL_TIMEOUT_MS        20
 
 struct KST_Servo_t {
     uint16_t command;
@@ -69,6 +76,7 @@ public:
     bool is_servo_channel_active(uint8_t chan) const;
     bool is_servo_present(uint8_t chan, uint32_t timeout_us = 2000000) const;
     bool is_servo_enabled(uint8_t chan) const;
+    void send_mavlink_kst_servo_status(uint8_t chan);
 
 private:
     void loop();
@@ -77,6 +85,8 @@ private:
     void build_position_cmd(AP_HAL::CANFrame &frame, uint8_t chan, uint16_t pwm_us);
     void send_servo_messages();
     void handle_servo_message(const AP_HAL::CANFrame &frame);
+    void status_poll();
+    void build_read_cmd(AP_HAL::CANFrame &frame, uint8_t node_id, uint16_t index, uint8_t subindex);
 
     bool                _initialized;
     uint8_t             _driver_index;
@@ -89,5 +99,9 @@ private:
 
     AP_Int32 _srv_bm;
     AP_Int16 _srv_hz;
+
+    // Non-blocking status query state machine
+    uint8_t  _poll_state;       // 0..KST_POLL_TOTAL_STEPS-1
+    uint32_t _poll_cmd_sent_ms; // timestamp when command was sent (0 = idle, need to send)
 };
 #endif // HAL_KST_CAN_ENABLE
