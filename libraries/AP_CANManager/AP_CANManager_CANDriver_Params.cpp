@@ -52,7 +52,7 @@ const AP_Param::GroupInfo AP_CANManager::CANDriver_Params::var_info[] = {
 
 #if HAL_KST_CAN_ENABLE
     // @Group: KC_
-    // @Path: ../AP_KASTCAN/AP_KSTCAN.cpp
+    // @Path: ../AP_KSTCAN/AP_KSTCAN.cpp
     AP_SUBGROUPPTR(_kstcan, "KC_", 7, AP_CANManager::CANDriver_Params, AP_KSTCAN),
 #endif
 

@@ -199,6 +199,10 @@ PC1 SCALED_V3V3 ADC1 SCALE(2)
 PB1 FMU_SERVORAIL_VCC_SENS ADC1 SCALE(3)
 
 # CAN bus
+# required so CAN_D1_DRIVER/CAN_D2_DRIVER default to 1 instead of 0,
+# otherwise AP_CANManager::init() skips driver allocation entirely and
+# driver params (e.g. CAN_D1_KC_SRV_BM) never appear
+define HAL_CAN_DRIVER_DEFAULT 1
 PI9  CAN1_RX CAN1
 PH13 CAN1_TX CAN1
 

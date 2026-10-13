@@ -45,7 +45,7 @@ struct KST_Servo_t {
     bool     enabled;
     uint32_t last_rx_us;
     int16_t  position;
-    int16_t  current;
+    uint16_t current;
     int16_t  voltage;
     int8_t   temperature;
 

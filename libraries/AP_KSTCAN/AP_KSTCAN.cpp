@@ -250,9 +250,10 @@ void AP_KSTCAN::status_poll()
         return;
     }
 
-    // Step 2: Check for response with timeout
-    // Also drains write-command responses (from send_servo_messages) and
-    // SDO error frames so they don't accumulate in the CAN buffer.
+    // Step 2: Check for response with timeout.
+    // Frames from any KST node are routed through handle_servo_message() to
+    // refresh liveness and log SDO errors; the expected node's frame is also
+    // matched against the object index to extract the payload.
     const uint32_t now_ms = AP_HAL::millis();
     const uint8_t node_id = servo_idx + 1;
     const uint32_t expect_id = KST_RSP_BASE_ID + node_id;
@@ -263,6 +264,15 @@ void AP_KSTCAN::status_poll()
     while (read_frame(rx_frame, 0)) {
         if (rx_frame.id & AP_HAL::CANFrame::FlagEFF) { continue; }
         const uint32_t id = rx_frame.id & 0x7FFU;
+
+        // Any frame from a valid KST node proves that node is alive. This also
+        // consumes write-command acks (0x60) from send_servo_messages() and SDO
+        // errors (0x80) for nodes other than the one currently being polled, so
+        // they don't accumulate in the CAN RX buffer.
+        if (id > KST_RSP_BASE_ID && (id - KST_RSP_BASE_ID) <= KST_MAX_NUM_SERVO) {
+            handle_servo_message(rx_frame);
+        }
+
         if (id != expect_id) { continue; }
         if (rx_frame.dlc < 4) { continue; }
 
@@ -271,11 +281,13 @@ void AP_KSTCAN::status_poll()
             if (rx_frame.data[0] == 0x4B && rx_frame.data[1] == 0x02 &&
                 rx_frame.data[2] == 0x60 && rx_frame.data[3] == 0x00) {
                 const int16_t raw = static_cast<int16_t>(rx_frame.data[4] | (rx_frame.data[5] << 8));
-                WITH_SEMAPHORE(_telem_sem);
-                _servos[servo_idx].position = raw;
-                _servos[servo_idx].present = true;
-                _servos[servo_idx].enabled = true;
-                _servos[servo_idx].last_rx_us = AP_HAL::micros();
+                {
+                    WITH_SEMAPHORE(_telem_sem);
+                    _servos[servo_idx].position = raw;
+                    _servos[servo_idx].present = true;
+                    _servos[servo_idx].enabled = true;
+                    _servos[servo_idx].last_rx_us = AP_HAL::micros();
+                }
                 matched = true;
                 GCS_SEND_MESSAGE(MSG_KST_SERVO_STATUS);
             }
@@ -285,25 +297,20 @@ void AP_KSTCAN::status_poll()
                 rx_frame.data[2] == 0x60 && rx_frame.data[3] == 0x00) {
                 const uint16_t current_raw = static_cast<uint16_t>(rx_frame.data[4] | (rx_frame.data[5] << 8));
                 const int8_t temp_raw = static_cast<int8_t>(rx_frame.data[6]);
-                WITH_SEMAPHORE(_telem_sem);
-                _servos[servo_idx].current = static_cast<int16_t>(current_raw);
-                _servos[servo_idx].temperature = temp_raw;
-                _servos[servo_idx].present = true;
-                _servos[servo_idx].enabled = true;
-                _servos[servo_idx].last_rx_us = AP_HAL::micros();
+                {
+                    WITH_SEMAPHORE(_telem_sem);
+                    _servos[servo_idx].current = current_raw;
+                    _servos[servo_idx].temperature = temp_raw;
+                    _servos[servo_idx].present = true;
+                    _servos[servo_idx].enabled = true;
+                    _servos[servo_idx].last_rx_us = AP_HAL::micros();
+                }
                 matched = true;
                 GCS_SEND_MESSAGE(MSG_KST_SERVO_STATUS);
             }
         }
 
         if (matched) { break; }
-
-        // Drain unmatched frames from this node (write acks, errors) so
-        // they don't accumulate in the CAN buffer.
-        if (rx_frame.data[0] == 0x60 || rx_frame.data[0] == 0x80) {
-            // Write acknowledgment or SDO error -- just consume it
-            continue;
-        }
     }
 
     // If matched, advance immediately. If timeout, also advance.
