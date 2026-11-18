@@ -361,7 +361,15 @@ void AP_Relay::init()
 
                 set_pin_by_instance(instance, (bool)default_state);
             }
-        } else {
+        } else if (function == AP_Relay_Params::FUNCTION::START_ECU || 
+                   function == AP_Relay_Params::FUNCTION::STOP_ECU || 
+                   function == AP_Relay_Params::FUNCTION::MODE_SWITCHING){
+            const AP_Relay_Params::DefaultState default_state = _params[instance].default_state;
+            if ((default_state == AP_Relay_Params::DefaultState::OFF) ||
+                (default_state == AP_Relay_Params::DefaultState::ON)) {
+                set_pin_by_instance(instance, (bool)default_state);
+            }
+        }else {
             // all functions are supposed to be off by default
             // this will need revisiting when we support inversion
             set_pin_by_instance(instance, false);

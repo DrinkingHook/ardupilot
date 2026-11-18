@@ -159,6 +159,8 @@ public:
     // var_info for holding Parameter information
     static const struct AP_Param::GroupInfo var_info[];
 
+    bool get_pre_rotate_finished() const { return _heliflags.Pre_rotate_finshed; }
+
 protected:
 
     // manual servo modes (used for setup)

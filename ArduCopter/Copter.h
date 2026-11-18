@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
+#include <cstdint>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -229,6 +230,7 @@ public:
     friend class PayloadPlace;
 
     Copter(void);
+
 
 private:
 

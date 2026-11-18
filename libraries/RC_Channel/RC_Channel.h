@@ -226,6 +226,9 @@ public:
         RETRACT_MOUNT2 =     113, // Retract Mount2
         
         PRE_ROTAING =        114, // Pre_rotaing On/Off switch
+        START_ECU =          115,
+        STOP_ECU =           116,
+        MODE_SWITCHING =     117,
 
         // if you add something here, make sure to update the documentation of the parameter in RC_Channel.cpp!
         // also, if you add an option >255, you will need to fix duplicate_options_exist

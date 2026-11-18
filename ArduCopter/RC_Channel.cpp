@@ -121,6 +121,9 @@ void RC_Channel_Copter::init_aux_function(const AUX_FUNC ch_option, const AuxSwi
     case AUX_FUNC::INVERTED:
     case AUX_FUNC::MOTOR_INTERLOCK:
     case AUX_FUNC::PRE_ROTAING:
+    case AUX_FUNC::START_ECU:
+    case AUX_FUNC::STOP_ECU:
+    case AUX_FUNC::MODE_SWITCHING:
 #if HAL_PARACHUTE_ENABLED
     case AUX_FUNC::PARACHUTE_3POS:      // we trust the vehicle will be disarmed so even if switch is in release position the chute will not release
     case AUX_FUNC::PARACHUTE_ENABLE:
@@ -382,6 +385,19 @@ bool RC_Channel_Copter::do_aux_function(const AUX_FUNC ch_option, const AuxSwitc
             copter.ap.pre_motor_rotaing_switch = (ch_flag == AuxSwitchPos::HIGH || ch_flag == AuxSwitchPos::MIDDLE);
             break;
 
+        case AUX_FUNC::START_ECU:
+            do_ecu_function_relay(AP_Relay_Params::FUNCTION::START_ECU, ch_flag == AuxSwitchPos::HIGH);
+            break;
+        case AUX_FUNC::STOP_ECU:
+            do_ecu_function_relay(AP_Relay_Params::FUNCTION::STOP_ECU, ch_flag == AuxSwitchPos::HIGH);
+            break;
+        case AUX_FUNC::MODE_SWITCHING:
+            if (copter.motors->get_pre_rotate_finished()) {
+                GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "ECU: ModeSwitching blocked by pre-rotate gate");
+                break;
+            }
+            do_ecu_function_relay(AP_Relay_Params::FUNCTION::MODE_SWITCHING, ch_flag == AuxSwitchPos::HIGH);
+            break;
 #if FRAME_CONFIG == HELI_FRAME
         case AUX_FUNC::TURBINE_START:
            switch (ch_flag) {
@@ -706,6 +722,44 @@ void RC_Channel_Copter::do_aux_function_change_force_flying(const AuxSwitchPos c
         copter.force_flying = false;
         break;
     }
+}
+
+// human readable name for the ECU relay functions, used in GCS messages
+static const char *ecu_function_name(AP_Relay_Params::FUNCTION function)
+{
+    switch (function) {
+    case AP_Relay_Params::FUNCTION::START_ECU:
+        return "StartECU";
+    case AP_Relay_Params::FUNCTION::STOP_ECU:
+        return "StopECU";
+    case AP_Relay_Params::FUNCTION::MODE_SWITCHING:
+        return "ModeSwitching";
+    default:
+        return "ECU";
+    }
+}
+
+void RC_Channel_Copter::do_ecu_function_relay(AP_Relay_Params::FUNCTION function, bool val)
+{
+    const char *name = ecu_function_name(function);
+
+    if (!copter.ap.land_complete) {
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "ECU: %s blocked (airborne)", name);
+        return;
+    }
+
+    AP_Relay *relay = AP::relay();
+    if (relay == nullptr) {
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "ECU: %s relay unavailable", name);
+        return;
+    }
+    if (!relay->enabled(function)) {
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "ECU: %s relay not configured", name);
+        return;
+    }
+
+    relay->set(function, val);
+    // GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ECU: %s %s", name, val ? "ON" : "OFF");
 }
 
 // save_trim - adds roll and pitch trims from the radio to ahrs

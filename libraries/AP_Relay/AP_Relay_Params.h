@@ -44,6 +44,9 @@ public:
         DroneCAN_HARDPOINT_13 = 23,
         DroneCAN_HARDPOINT_14 = 24,
         DroneCAN_HARDPOINT_15 = 25,
+        START_ECU = 26,
+        STOP_ECU = 27,
+        MODE_SWITCHING = 28,
         NUM_FUNCTIONS // must be the last entry
     };
 
